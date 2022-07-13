@@ -29,7 +29,7 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40;
 
 //movimento
 var mvLeft = mvUp = mvRight = mvDown = false;
-
+var velocidade = 5;
 //array
 var mapa = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -95,7 +95,8 @@ imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
 var boneco = new Sprite(100,100,50,50,imagemBoneco);
 sprites.push(boneco);
 
-
+var imagemParede = new Image();
+imagemParede.src = "https://imgur.com/EkleLlt.png";
 
 //funções 
 function loop (){
@@ -106,20 +107,20 @@ function loop (){
 
 function atualiza(){
     if(mvLeft && !mvRight){
-        boneco.x -= 2;
+        boneco.x -= velocidade;
     }
     if(mvRight && !mvLeft){
-        boneco.x += 2;
+        boneco.x += velocidade;
     }
     if(mvUp && !mvDown){
-        boneco.y -= 2;
+        boneco.y -= velocidade;
     }
     if(mvDown && !mvUp){
-        boneco.y += 2;
+        boneco.y += velocidade;
     }
 
-    boneco.x = Math.max(0, Math.min(tela.width - boneco.largura, boneco.x));
-    boneco.y = Math.max(0, Math.min(tela.height - boneco.altura, boneco.y));
+    boneco.x = Math.max(50, Math.min((tela.width - 50) - boneco.largura, boneco.x));
+    boneco.y = Math.max(50, Math.min((tela.height - 50)- boneco.altura, boneco.y));
 
     //colisões
     /*for(var i in blocos){
@@ -135,6 +136,17 @@ function desenha() {
         var spr = sprites[i];
         //ctx.fillStyle = spr.cor;
         ctx.drawImage(imagemBoneco,spr.x, spr.y, spr.largura, spr.altura); 
+    }
+
+    for(var linhas in mapa){
+        for(var colunas in mapa[linhas]){
+            var bloco = mapa[linhas][colunas];
+            if(bloco === 1){
+                var x = colunas*50;
+                var y = linhas*50;
+                ctx.drawImage(imagemParede,x,y,50,50);
+            }
+        }
     }
 }
 function colisao(r1,r2){
