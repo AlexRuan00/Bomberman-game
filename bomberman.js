@@ -1,112 +1,173 @@
-
 class Sprite {
     constructor(x, y, largura, altura, imagem) {
-        this.x = x;
         this.y = y;
+        this.x = x;
         this.largura = largura;
         this.altura = altura;
         this.imagem = imagem;
     }
+}
+Sprite.prototype.metadeLargura = function(){
+    return this.largura/2
+}
+Sprite.prototype.metadeAltura = function(){
+    return this.altura/2
+}
+Sprite.prototype.centroX = function(){
+    return this.x + this.metadeLargura();
+}
+Sprite.prototype.centroY = function(){
+    return this.y + this.metadeAltura();
+}
 
-    desenhar(ctx) {
-        if (this.imagem) {
-            ctx.drawImage(this.imagem, this.x, this.y, this.largura, this.altura);
-        } else {
-            ctx.strokeRect(this.x, this.y, this.largura, this.altura);
+
+var tela = document.querySelector("canvas");
+var ctx = tela.getContext("2d");
+
+//teclas
+var LEFT=37, UP=38, RIGHT=39, DOWN=40;
+
+//movimento
+var mvLeft = mvUp = mvRight = mvDown = false;
+
+//array
+var mapa = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+]
+var sprites = [];
+
+
+//entradas
+window.addEventListener("keydown",function (e){
+    var key = e.keyCode;
+    switch(key){
+        case LEFT:
+            mvLeft = true;
+            break;
+        case UP:
+            mvUp = true;
+            break;
+        case RIGHT:
+            mvRight = true;
+            break;
+        case DOWN:
+            mvDown = true;
+            break;          
+    }
+    
+}, false)
+window.addEventListener("keyup",function (e){
+    var key = e.keyCode;
+    switch (key){
+        case LEFT:
+            mvLeft = false;
+            break;
+        case UP:
+            mvUp = false;
+            break;
+        case RIGHT:
+            mvRight = false;
+            break;
+        case DOWN:
+            mvDown = false;
+            break;          
+    }
+
+}, false)
+
+//objetos
+var imagemBoneco = new Image();
+imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
+var boneco = new Sprite(100,100,50,50,imagemBoneco);
+sprites.push(boneco);
+
+
+
+//funções 
+function loop (){
+    window.requestAnimationFrame(loop,tela);
+    atualiza();
+    desenha();
+}
+
+function atualiza(){
+    if(mvLeft && !mvRight){
+        boneco.x -= 2;
+    }
+    if(mvRight && !mvLeft){
+        boneco.x += 2;
+    }
+    if(mvUp && !mvDown){
+        boneco.y -= 2;
+    }
+    if(mvDown && !mvUp){
+        boneco.y += 2;
+    }
+
+    boneco.x = Math.max(0, Math.min(tela.width - boneco.largura, boneco.x));
+    boneco.y = Math.max(0, Math.min(tela.height - boneco.altura, boneco.y));
+
+    //colisões
+    /*for(var i in blocos){
+        var blc = blocos[i];
+        colisao(blc,boneco);
+    }*/
+    
+}
+
+function desenha() {
+    ctx.clearRect(0,0,tela.width,tela.height);
+    for(var i in sprites){
+        var spr = sprites[i];
+        //ctx.fillStyle = spr.cor;
+        ctx.drawImage(imagemBoneco,spr.x, spr.y, spr.largura, spr.altura); 
+    }
+}
+function colisao(r1,r2){
+    var catX = r1.centroX() - r2.centroX();
+    var catY = r1.centroY() - r2.centroY();
+
+    //soma das metades
+    var smMetadeLargura = r1.metadeLargura() + r2.metadeLargura();
+    var smMetadeAltura = r1.metadeAltura() + r2.metadeAltura();
+
+    if(Math.abs(catX) < smMetadeLargura && Math.abs(catY) < smMetadeAltura){
+        var diferencaX = smMetadeLargura - Math.abs(catX);
+        var diferencaY = smMetadeAltura - Math.abs(catY);
+
+        if(diferencaX >= diferencaY){//colisão por cima ou por baixo
+            if(catY > 0){//por cima
+                r1.y += diferencaY;
+            } else {
+                r1.y -= diferencaY;
+            }
+        } else {// colisão pela esquerda ou direita
+            if(catX > 0){//pela esquerda
+                r1.x += diferencaX;
+            } else {
+                r1.x -= diferencaX;
+            }
         }
     }
-}            
 
-function boneco(){  
-
-    let imagemBoneco = new Image();
-    imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
-    ctx.drawImage(imagemBoneco,x,y,50,50);
-
-    //ctx.rect(x,y,50,50);
-    //ctx.stroke();
-
-    for (let parede of paredes) {
-        parede.desenhar(ctx);
-    }
 }
+loop();
 
-function campo() {  
-    ctx.fillRect(0, 0, 750, 750);
-    ctx.fillStyle = "white";
-    
-}
+//imagemParede.src = "https://imgur.com/EkleLlt.png";
 
-
-function atualizaTela() { 
-    campo();
-    boneco();
-    //criaParede();
-    //check()
-}
-function leDoTeclado(evento) { 
-    
-    if(evento.keyCode == 38) {
-        y -= 10;
-    } else if (evento.keyCode == 40) {
-        y += 10
-    } else if (evento.keyCode == 37) {
-        x -= 10;
-    } else if (evento.keyCode == 39) {
-        x += 10;
-    }
-}
-
-/*function check(){ 
-    var rect1 = {x: x, y: y, width: 30, height: 30}
-    var rect2 = {x: posicaoP, y: posicaoP, width: 50, height: 50}
-    
-    if (rect1.x < rect2.x + rect2.width &&
-    rect1.x + rect1.width > rect2.x &&
-    rect1.y < rect2.y + rect2.height &&
-    rect1.height + rect1.y > rect2.y) {
-
-        colidiu = true;
-    } else {
-        colidiu = false;
-    }
-}
-
-function criaParede(){
-    parede.src = "https://imgur.com/EkleLlt.png";
-    ctx.drawImage(parede, posicaoP,posicaoP, tP, tP);
-}*/
-var imagemParede = new Image();
-imagemParede.src = "https://imgur.com/EkleLlt.png";
-
-var paredes = [];
-//for left
-for(let i = 0; i<750; i= i+50){
-    paredes.push(new Sprite(0,i,50,50,imagemParede));
-}
-//for top
-for(let i = 0; i<750; i= i+50){
-    paredes.push(new Sprite(i,0,50,50,imagemParede));
-}
-//for right
-for(let i = 0; i<750; i= i+50){
-    paredes.push(new Sprite(700,i,50,50,imagemParede));
-}
-//for bottom
-for(let i = 0; i<750; i= i+50){
-    paredes.push(new Sprite(i,700,50,50,imagemParede));
-}
-
-
-
-
-
-
-var colidiu = false;
-var posicaoP = 300;
-var tela = document.querySelector("canvas"); 
-var ctx = tela.getContext("2d"); 
-var x = 237.5; 
-var y = 287.5;  
-var intervalo = setInterval(atualizaTela, 120); 
-document.onkeydown = leDoTeclado; 
+   
+//ctx.drawImage(imagemBoneco,x,y,50,50);
