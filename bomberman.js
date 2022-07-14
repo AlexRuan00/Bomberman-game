@@ -29,8 +29,8 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40;
 
 //movimento
 var mvLeft = mvUp = mvRight = mvDown = false;
-var velocidade = 5;
-//array
+var velocidade = 4;
+//arrays
 var mapa = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -38,19 +38,30 @@ var mapa = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ]
+         
 var sprites = [];
-
-
+var paredes = [];
+for(var linhas in mapa){
+    for(var colunas in mapa[linhas]){
+        var bloco = mapa[linhas][colunas];
+        if(bloco === 1){
+            var x = colunas*50;
+            var y = linhas*50;
+            var parede = new Sprite(x,y,50,50,imagemBoneco);
+        }
+        paredes.push(parede);
+    }  
+} 
 //entradas
 window.addEventListener("keydown",function (e){
     var key = e.keyCode;
@@ -103,13 +114,14 @@ function loop (){
     window.requestAnimationFrame(loop,tela);
     atualiza();
     desenha();
+    
 }
 
 function atualiza(){
-    if(mvLeft && !mvRight){
+    if(mvLeft && !mvRight && !mvDown && !mvUp){
         boneco.x -= velocidade;
     }
-    if(mvRight && !mvLeft){
+    if(mvRight && !mvLeft && !mvDown && !mvUp){
         boneco.x += velocidade;
     }
     if(mvUp && !mvDown){
@@ -119,14 +131,14 @@ function atualiza(){
         boneco.y += velocidade;
     }
 
-    boneco.x = Math.max(50, Math.min((tela.width - 50) - boneco.largura, boneco.x));
-    boneco.y = Math.max(50, Math.min((tela.height - 50)- boneco.altura, boneco.y));
+    //boneco.x = Math.max(50, Math.min((tela.width - 50) - boneco.largura, boneco.x));
+    //boneco.y = Math.max(50, Math.min((tela.height - 50)- boneco.altura, boneco.y));
 
     //colisões
-    /*for(var i in blocos){
-        var blc = blocos[i];
-        colisao(blc,boneco);
-    }*/
+    for(var i in paredes){
+        var prd = paredes[i];
+        colisao(boneco,prd);
+    }
     
 }
 
@@ -134,7 +146,6 @@ function desenha() {
     ctx.clearRect(0,0,tela.width,tela.height);
     for(var i in sprites){
         var spr = sprites[i];
-        //ctx.fillStyle = spr.cor;
         ctx.drawImage(imagemBoneco,spr.x, spr.y, spr.largura, spr.altura); 
     }
 
@@ -177,6 +188,7 @@ function colisao(r1,r2){
     }
 
 }
+
 loop();
 
 //imagemParede.src = "https://imgur.com/EkleLlt.png";
