@@ -50,7 +50,9 @@ var mapa = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
 ]
 var x;
-var y;         
+var y;
+var xBomba;
+var yBomba;         
 var sprites = [];
 var paredes = [];
 var paredesD = [];
@@ -90,7 +92,10 @@ window.addEventListener("keydown",function (e){
             break;
         case SPACE:
             bomba = true;
-        break;           
+            xBomba = Math.floor(boneco.centroX()/50)*50; 
+            yBomba = Math.floor(boneco.centroY()/50)*50;
+            this.setTimeout(pararBomba,3000); // usando timeout para fazer a bomba desaparecer.
+            break;           
     }
     
 }, false)
@@ -193,8 +198,6 @@ function desenha() {
     }
    
     if(bomba){
-        var xBomba = Math.floor(boneco.centroX()/50)*50;
-        var yBomba = Math.floor(boneco.centroY()/50)*50;
         ctx.drawImage(imagemBomba,xBomba,yBomba,50,50);
     }
 }
@@ -226,6 +229,10 @@ function colisao(r1,r2){
         }
     }
 
+}
+// Função para deixar a variável da bomba false, para ser usada no setTimeOut.
+function pararBomba(){
+    bomba = false;
 }
 
 loop();
