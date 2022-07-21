@@ -67,11 +67,12 @@ for(var linhas in mapa){
         if(bloco === 2){
             x = colunas*50
             y = linhas*50
-            var paredeD = new Sprite(x,y,50,50,imagemParedeD)
+            var paredeD = new Sprite(x, y, 50, 50, imagemParedeD)
+            paredesD.push(paredeD);
         }
         
         paredes.push(parede);
-        paredesD.push(paredeD);
+        
     }  
 } 
 //entradas
@@ -138,8 +139,8 @@ function loop (){
     window.requestAnimationFrame(loop,tela);
     atualiza();
     desenha();
-    console.log("X = "+boneco.x+" Centro = "+ boneco.centroX())
-   
+    
+    
 }
 
 function atualiza(){
@@ -159,13 +160,13 @@ function atualiza(){
   
 
     //colisões
-    for(var i in paredes){
-        var prd = paredes[i];
+    for(let i in paredes){
+        let prd = paredes[i];
         colisao(boneco,prd);
     }
-     for(var i2 in paredesD){
-        var prd2 = paredesD[i2];
-        colisao(boneco,prd);
+    for (let i in paredesD) {
+       let prd = paredesD[i];
+       colisao(boneco, prd);
     }
     
 }
