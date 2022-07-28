@@ -19,7 +19,17 @@ Sprite.prototype.centroX = function(){
 Sprite.prototype.centroY = function(){
     return this.y + this.metadeAltura();
 }
-
+class Bomba {
+    constructor(x, y, largura, altura, imagem, tempoDeDetonacao = 3000) {
+        this.y = y;
+        this.x = x;
+        this.largura = largura;
+        this.altura = altura;
+        this.imagem = imagem;
+        this.momentoCriacao = new Date();
+        this.tempoDeDetonacao = 3000; 
+    }
+}    
 
 
 var tela = document.querySelector("canvas");
@@ -29,7 +39,7 @@ var ctx = tela.getContext("2d");
 var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
 
 //movimento
-var mvLeft = mvUp = mvRight = mvDown = bomba = false;
+var mvLeft = mvUp = mvRight = mvDown = bomb = false;
 var velocidade = 2;
 //arrays
 var mapa = [
@@ -51,11 +61,16 @@ var mapa = [
 ]
 var x;
 var y;
-var xBomba;
-var yBomba;         
+var bombas = [];
+var xBomba = undefined;
+var yBomba= undefined;         
 var sprites = [];
 var paredes = [];
 var paredesD = [];
+var imagemBomba = new Image();
+imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+var bomba;
+
 for(var linhas in mapa){
     for(var colunas in mapa[linhas]){
         var bloco = mapa[linhas][colunas];
@@ -91,12 +106,14 @@ window.addEventListener("keydown",function (e){
             mvDown = true;
             break;
         case SPACE:
-            bomba = true;
             xBomba = Math.floor(boneco.centroX()/50)*50; 
             yBomba = Math.floor(boneco.centroY()/50)*50;
-            this.setTimeout(pararBomba,3000); // usando timeout para fazer a bomba desaparecer.
-            break;           
-    }
+            bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
+            bombas.push(bomba);
+            break; 
+        }   
+                  
+    
     
 }, false)
 window.addEventListener("keyup",function (e){
@@ -131,15 +148,14 @@ imagemParede.src = "https://imgur.com/EkleLlt.png";
 var imagemParedeD = new Image();
 imagemParedeD.src = "https://imgur.com/C46n8aY.png";
 
-var imagemBomba = new Image();
-imagemBomba.src = "https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png"
 //funções 
 function loop (){
     window.requestAnimationFrame(loop,tela);
     atualiza();
     desenha();
-    console.log("X = "+boneco.x+" Centro = "+ boneco.centroX())
-   
+    //console.log(xBomba+ " "+yBomba);
+    console.log(bombas);
+    //console.log(sprites);
 }
 
 function atualiza(){
@@ -154,9 +170,8 @@ function atualiza(){
     }
     if(mvDown && !mvUp){
         boneco.y += velocidade;
-    }
-
-  
+    } 
+   
 
     //colisões
     for(var i in paredes){
@@ -170,15 +185,13 @@ function atualiza(){
     
 }
 
-
-
 function desenha() {
     var x;
     var y;
     ctx.clearRect(0,0,tela.width,tela.height);
     for(var i in sprites){
         var spr = sprites[i];
-        ctx.drawImage(imagemBoneco,spr.x, spr.y, spr.largura, spr.altura); 
+        ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
     }
 
     for(var linhas in mapa){
@@ -197,8 +210,17 @@ function desenha() {
         }
     }
    
-    if(bomba){
-        ctx.drawImage(imagemBomba,xBomba,yBomba,50,50);
+
+
+    
+    if(bombas.length<1000){ 
+        for(var i = 0; i<bombas.length; i++){
+            var bmb = bombas[i]
+                ctx.drawImage(bmb.imagem,bmb.x,bmb.y,bmb.largura,bmb.altura);
+            if(((new Date())-bombas[i].momentoCriacao)>bombas[i].tempoDeDetonacao){
+                bombas.shift();
+            }    
+        }  
     }
 }
 
@@ -231,13 +253,15 @@ function colisao(r1,r2){
 
 }
 // Função para deixar a variável da bomba false, para ser usada no setTimeOut.
-function pararBomba(){
-    bomba = false;
-}
+
 
 loop();
 
 //imagemParede.src = "https://imgur.com/EkleLlt.png";
 
-   
+/*ctx.clearRect(xBomba,yBomba,50,50);
+bomb = false;
+xBomba = undefined;
+yBomba = undefined;*/
+  
 //ctx.drawImage(imagemBoneco,x,y,50,50);
