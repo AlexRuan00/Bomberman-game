@@ -1,4 +1,4 @@
- class Sprite {
+class Sprite {
     constructor(x, y, largura, altura, imagem) {
         this.y = y;
         this.x = x;
@@ -19,6 +19,7 @@ Sprite.prototype.centroX = function(){
 Sprite.prototype.centroY = function(){
     return this.y + this.metadeAltura();
 }
+
 class Bomba {
     constructor(x, y, largura, altura, imagem, tempoDeDetonacao = 3000) {
         this.y = y;
@@ -31,134 +32,12 @@ class Bomba {
     }
 }    
 
-
-var tela = document.querySelector("canvas");
-var ctx = tela.getContext("2d");
-
-//teclas
-var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
-
-//movimento
-var mvLeft = mvUp = mvRight = mvDown = bomb = false;
-var velocidade = 2;
-//arrays
-var mapa = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,2,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,2,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,2,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
-]
-var x;
-var y;
-var bombas = [];
-var xBomba = undefined;
-var yBomba= undefined;         
-var sprites = [];
-var paredes = [];
-var paredesD = [];
-var imagemBomba = new Image();
-imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
-var bomba;
-
-for(var linhas in mapa){
-    for(var colunas in mapa[linhas]){
-        var bloco = mapa[linhas][colunas];
-        if(bloco === 1){
-            x = colunas*50;
-            y = linhas*50;
-            var parede = new Sprite(x,y,50,50,imagemBoneco);
-        }
-        if(bloco === 2){
-            x = colunas*50
-            y = linhas*50
-            var paredeD = new Sprite(x, y, 50, 50, imagemParedeD)
-            paredesD.push(paredeD);
-        }
-        
-        paredes.push(parede);
-        
-    }  
-} 
-//entradas
-window.addEventListener("keydown",function (e){
-    var key = e.keyCode;
-    switch(key){
-        case LEFT:
-            mvLeft = true;
-            break;
-        case UP:
-            mvUp = true;
-            break;
-        case RIGHT:
-            mvRight = true;
-            break;
-        case DOWN:
-            mvDown = true;
-            break;
-        case SPACE:
-            xBomba = Math.floor(boneco.centroX()/50)*50; 
-            yBomba = Math.floor(boneco.centroY()/50)*50;
-            bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
-            bombas.push(bomba);
-            break; 
-        }   
-                  
-    
-    
-}, false)
-window.addEventListener("keyup",function (e){
-    var key = e.keyCode;
-    switch (key){
-        case LEFT:
-            mvLeft = false;
-            break;
-        case UP:
-            mvUp = false;
-            break;
-        case RIGHT:
-            mvRight = false;
-            break;
-        case DOWN:
-            mvDown = false;
-            break; 
-                
-    }
-
-}, false)
-
-//objetos
-var imagemBoneco = new Image();
-imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
-var boneco = new Sprite(100,100,40,40,imagemBoneco);
-sprites.push(boneco);
-
-var imagemParede = new Image();
-imagemParede.src = "https://imgur.com/EkleLlt.png";
-
-var imagemParedeD = new Image();
-imagemParedeD.src = "https://imgur.com/C46n8aY.png";
-
-//funções 
-function loop (){
+//Funções
+function loop (){ 
     window.requestAnimationFrame(loop,tela);
     atualiza();
     desenha();
-    //console.log(xBomba+ " "+yBomba);
     console.log(bombas);
-    //console.log(sprites);
-    
-    
 }
 
 function atualiza(){
@@ -175,7 +54,6 @@ function atualiza(){
         boneco.y += velocidade;
     } 
    
-
     //colisões
     for(let i in paredes){
         let prd = paredes[i];
@@ -185,18 +63,18 @@ function atualiza(){
        let prd = paredesD[i];
        colisao(boneco, prd);
     }
-    
 }
 
 function desenha() {
     var x;
     var y;
-    ctx.clearRect(0,0,tela.width,tela.height);
+    ctx.clearRect(0,0,tela.width,tela.height); //Limpando a tela.
+    
     for(var i in sprites){
         var spr = sprites[i];
         ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
     }
-
+    //Lógica para varrer o vetor da matriz do mapa.
     for(var linhas in mapa){
         for(var colunas in mapa[linhas]){
             var bloco = mapa[linhas][colunas];
@@ -213,9 +91,6 @@ function desenha() {
         }
     }
    
-
-
-    
     if(bombas.length<1000){ 
         for(var i = 0; i<bombas.length; i++){
             var bmb = bombas[i]
@@ -255,16 +130,130 @@ function colisao(r1,r2){
     }
 
 }
-// Função para deixar a variável da bomba false, para ser usada no setTimeOut.
+
+//Entradas
+window.addEventListener("keydown",function (e){
+    var key = e.keyCode;
+    switch(key){
+        case LEFT:
+            mvLeft = true;
+            break;
+        case UP:
+            mvUp = true;
+            break;
+        case RIGHT:
+            mvRight = true;
+            break;
+        case DOWN:
+            mvDown = true;
+            break;
+        case SPACE:
+            xBomba = Math.floor(boneco.centroX()/50)*50; 
+            yBomba = Math.floor(boneco.centroY()/50)*50;
+            bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
+            bombas.push(bomba);
+            break; 
+    }   
+}, false)
+
+window.addEventListener("keyup",function (e){
+    var key = e.keyCode;
+    switch (key){
+        case LEFT:
+            mvLeft = false;
+            break;
+        case UP:
+            mvUp = false;
+            break;
+        case RIGHT:
+            mvRight = false;
+            break;
+        case DOWN:
+            mvDown = false;
+            break; 
+                
+    }
+
+}, false)
 
 
+var tela = document.querySelector("canvas");
+var ctx = tela.getContext("2d");
+
+//teclas
+var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
+
+//movimento
+var mvLeft = mvUp = mvRight = mvDown = bomb = false;
+var velocidade = 2;
+
+var x;
+var y;
+var xBomba = undefined;
+var yBomba= undefined;  
+var bomba;
+
+//Arrays
+var bombas = [];
+var sprites = [];
+var paredes = [];
+var paredesD = [];
+//Array em forma de matriz para desenharmos o mapa.
+var mapa = [ 
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,2,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,2,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
+]
+
+//Lógica para varrer o vetor da matriz do mapa.
+for(var linhas in mapa){
+    for(var colunas in mapa[linhas]){
+        var bloco = mapa[linhas][colunas];
+        if(bloco === 1){
+            x = colunas*50;
+            y = linhas*50;
+            var parede = new Sprite(x,y,50,50,imagemBoneco);
+        }
+        if(bloco === 2){
+            x = colunas*50
+            y = linhas*50
+            var paredeD = new Sprite(x, y, 50, 50, imagemParedeD)
+            paredesD.push(paredeD);
+        }
+        
+        paredes.push(parede);
+        
+    }  
+} 
+
+//Definindo imagens.
+var imagemBoneco = new Image();
+imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
+
+var imagemParede = new Image();
+imagemParede.src = "https://imgur.com/EkleLlt.png";
+
+var imagemParedeD = new Image();
+imagemParedeD.src = "https://imgur.com/C46n8aY.png";
+
+var imagemBomba = new Image();
+imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+
+//Declarando objetos.
+var boneco = new Sprite(100,100,40,40,imagemBoneco);
+sprites.push(boneco);
+
+//Chamando a função loop pela primeira vez para que ela se repita sozinha logo em seguida. 
 loop();
-
-//imagemParede.src = "https://imgur.com/EkleLlt.png";
-
-/*ctx.clearRect(xBomba,yBomba,50,50);
-bomb = false;
-xBomba = undefined;
-yBomba = undefined;*/
-  
-//ctx.drawImage(imagemBoneco,x,y,50,50);
