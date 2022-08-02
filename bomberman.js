@@ -166,11 +166,13 @@ window.addEventListener("keydown",function (e){
             mvDown = true;
             break;
         case SPACE:
+            if(bombas.length<2){
             xBomba = Math.floor(boneco.centroX()/50)*50; 
             yBomba = Math.floor(boneco.centroY()/50)*50;
             bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
             bombas.push(bomba);
             break; 
+            }
     }   
 }, false)
 
