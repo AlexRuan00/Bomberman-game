@@ -30,7 +30,19 @@ class Bomba {
         this.momentoCriacao = new Date();
         this.tempoDeDetonacao = 3000; 
     }
-}    
+}  
+Bomba.prototype.metadeLargura = function(){
+    return this.largura/2
+}
+Bomba.prototype.metadeAltura = function(){
+    return this.altura/2
+}
+Bomba.prototype.centroX = function(){
+    return this.x + this.metadeLargura();
+}
+Bomba.prototype.centroY = function(){
+    return this.y + this.metadeAltura();
+}  
 
 //Funções
 function loop (){ 
@@ -60,8 +72,14 @@ function atualiza(){
         colisao(boneco,prd);
     }
     for (let i in paredesD) {
-       let prd = paredesD[i];
-       colisao(boneco, prd);
+        let prd = paredesD[i];
+        colisao(boneco, prd);
+    }
+    for (let i in bombas) {
+        let prd = bombas[i];
+        if(boneco.x > bomba.x+40 || boneco.x < bomba.x-30 || boneco.y > bomba.y+40 || boneco.y < bomba.y-30){
+            colisao(boneco, prd);    
+        }  
     }
 }
 
@@ -69,7 +87,7 @@ function desenha() {
     var x;
     var y;
     ctx.clearRect(0,0,tela.width,tela.height); //Limpando a tela.
-    
+
     for(var i in sprites){
         var spr = sprites[i];
         ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
@@ -203,7 +221,7 @@ var mapa = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,2,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
