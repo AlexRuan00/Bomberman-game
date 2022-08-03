@@ -1,10 +1,12 @@
 class Sprite {
-    constructor(x, y, largura, altura, imagem) {
+    constructor(x, y, largura, altura, imagem, tempoDeExplosao = 2000) {
         this.y = y;
         this.x = x;
         this.largura = largura;
         this.altura = altura;
         this.imagem = imagem;
+        this.momentoCriacao = new Date();
+        this.tempoDeExplosao = 2000;
     }
 }
 Sprite.prototype.metadeLargura = function(){
@@ -49,7 +51,7 @@ function loop (){
     window.requestAnimationFrame(loop,tela);
     atualiza();
     desenha();
-    console.log(bombas);
+    console.log(arrayExplosao);
 }
 
 function atualiza(){
@@ -109,15 +111,38 @@ function desenha() {
         }
     }
    
-    if(bombas.length<1000){ 
-        for(var i = 0; i<bombas.length; i++){
-            var bmb = bombas[i]
-                ctx.drawImage(bmb.imagem,bmb.x,bmb.y,bmb.largura,bmb.altura);
-            if(((new Date())-bombas[i].momentoCriacao)>bombas[i].tempoDeDetonacao){
-                bombas.shift();
-            }    
-        }  
-    }
+    for(var i = 0; i<bombas.length; i++){
+        var bmb = bombas[i];
+        ctx.drawImage(bmb.imagem,bmb.x,bmb.y,bmb.largura,bmb.altura);
+        
+        if(((new Date())-bombas[i].momentoCriacao)>bombas[i].tempoDeDetonacao){
+            for(var i3=0; i3<50*3 ; i3=i3+50){
+                explosao1 = new Sprite(bmb.x+i3,bmb.y,bmb.largura,bmb.altura,imagemExplosao);
+                if(i3 > 0){
+                    explosao2 = new Sprite(bmb.x-i3,bmb.y,bmb.largura,bmb.altura,imagemExplosao);
+                    explosao3 = new Sprite(bmb.x,bmb.y+i3,bmb.largura,bmb.altura,imagemExplosao);
+                    explosao4 = new Sprite(bmb.x,bmb.y-i3,bmb.largura,bmb.altura,imagemExplosao);
+                    arrayExplosao.push(explosao2);
+                    arrayExplosao.push(explosao3);
+                    arrayExplosao.push(explosao4);
+                }    
+                arrayExplosao.push(explosao1);
+                
+            }
+            bombas.shift();
+        }    
+    }  
+
+    for(i2 = 0; i2<arrayExplosao.length; i2++){
+        var exp = arrayExplosao[i2];
+        
+          ctx.drawImage(exp.imagem,exp.x,exp.y,exp.largura,exp.altura);  
+        
+        if(((new Date())-arrayExplosao[i2].momentoCriacao)>arrayExplosao[i2].tempoDeExplosao){
+            arrayExplosao.shift();
+        }
+    }   
+    
 }
 
 function colisao(r1,r2){
@@ -171,6 +196,7 @@ window.addEventListener("keydown",function (e){
             yBomba = Math.floor(boneco.centroY()/50)*50;
             bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
             bombas.push(bomba);
+            
             break; 
             }
     }   
@@ -212,12 +238,17 @@ var y;
 var xBomba = undefined;
 var yBomba= undefined;  
 var bomba;
+var explosao1;
+var explosao2;
+var explosao3;
+var explosao4;
 
 //Arrays
 var bombas = [];
 var sprites = [];
 var paredes = [];
 var paredesD = [];
+var arrayExplosao = [];
 //Array em forma de matriz para desenharmos o mapa.
 var mapa = [ 
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -270,6 +301,9 @@ imagemParedeD.src = "https://imgur.com/C46n8aY.png";
 
 var imagemBomba = new Image();
 imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+
+var imagemExplosao = new Image();
+imagemExplosao.src = "http://static.everypixel.com/ep-pixabay/1558/7758/3940/19731/15587758394019731930-explosion.jpg";
 
 //Declarando objetos.
 var boneco = new Sprite(100,100,40,40,imagemBoneco);
