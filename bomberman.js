@@ -9,6 +9,16 @@ class Sprite {
         this.tempoDeExplosao = 2000;
     }
 }
+    class SpriteInimigo {
+        constructor(x, y, largura, altura, imagem, tempoDeExplosao = 2000) {
+            this.y = y;
+            this.x = x;
+            this.largura = largura;
+            this.altura = altura;
+            this.imagem = imagem;
+            this.momentoCriacao = new Date();
+        }
+}
 Sprite.prototype.metadeLargura = function(){
     return this.largura/2
 }
@@ -19,6 +29,21 @@ Sprite.prototype.centroX = function(){
     return this.x + this.metadeLargura();
 }
 Sprite.prototype.centroY = function(){
+    return this.y + this.metadeAltura();
+}
+
+//Inimigo
+
+SpriteInimigo.prototype.metadeLargura = function(){
+    return this.largura/2
+}
+SpriteInimigo.prototype.metadeAltura = function(){
+    return this.altura/2
+}
+SpriteInimigo.prototype.centroX = function(){
+    return this.x + this.metadeLargura();
+}
+SpriteInimigo.prototype.centroY = function(){
     return this.y + this.metadeAltura();
 }
 
@@ -51,8 +76,14 @@ function loop (){
     window.requestAnimationFrame(loop,tela);
      desenha();
     atualiza();
+
+    
+    
    
-    console.log(paredesD);
+
+    
+   
+    console.log(yorX);
 }
 
 function atualiza(){
@@ -73,11 +104,13 @@ function atualiza(){
     for(let i in paredes){
         let prd = paredes[i];
         colisao(boneco,prd);
+        colisao(inimigo,prd);
     }
 
     for (let i in paredesD) {
         let prd = paredesD[i];
         colisao(boneco, prd);
+        colisao(inimigo,prd);
     }
     for (let i in bombas) {
         let prd = bombas[i];
@@ -107,37 +140,73 @@ function atualiza(){
             }
         } 
     }
+
+
+    //Movimentação do InimigO    
+
+    tempoInimigo += 1;
+
+
+    //condição para a cada 120 segundos, o inimigo mudar de direção.
+    if(tempoInimigo === 60){
+        tempoInimigo = 0;
+        yorX = Math.floor(Math.random() * 4);   //Número aléatorio de 1 a 4, definindo a direção do inimigo
+
+    }
+
+   //Para a esquerda
+    if(yorX === 0){
+
+            inimigo.x -= velocidade;
+            //inimigo.y = 0;
+            
+
         
+    }
+    //Para a direita
+    if(yorX === 1){
+        
+            inimigo.x += velocidade;
+            //inimigo.y = 0;
+            
+    }
+    //Para cima
+    if(yorX === 2){
+        
+        inimigo.y -= velocidade;
+        //inimigo.x = 0;
+       
+    }
+
+    //Para baixo
+    if(yorX === 3){
+        
+        inimigo.y += velocidade;
+        //inimigo.x = 0;
+       
+    }
 
 }
 
+//Função para desenhar tudo na tela.
 function desenha() {
     var x;
     var y;
     ctx.clearRect(0,0,tela.width,tela.height); //Limpando a tela.
 
+    //Personagem
     for(var i in sprites){
         var spr = sprites[i];
         ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
     }
-    //Lógica para varrer o vetor da matriz do mapa.
-    /*for(var linhas in mapa){
-        for(var colunas in mapa[linhas]){
-            var bloco = mapa[linhas][colunas];
-            if(bloco === 1){
-                x = colunas*50;
-                y = linhas*50;
-                ctx.drawImage(imagemParede,x,y,50,50);
-            }
-            if(bloco === 2){
-                x = colunas*50;
-                y = linhas*50;
-                ctx.drawImage(imagemParedeD,x,y,50,50);
-            }
-        }
-    }*/
 
-    //desenhar 1 e 2 da matriz de outra forma
+    //Inimigo
+    for(var i in spritesInimigo){
+        var spr = spritesInimigo[i];
+        ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
+    }
+
+    //Desenhar as paredes
     for(i = 0; i<paredes.length; i++){
          prd = paredes[i];
         ctx.drawImage(imagemParede,prd.x,prd.y,prd.largura,prd.altura);  
@@ -147,6 +216,8 @@ function desenha() {
         ctx.drawImage(imagemParedeD,prd.x,prd.y,prd.largura,prd.altura);  
     }
 
+
+    //Explosão da bomba
     for(var i = 0; i<bombas.length; i++){
         var bmb = bombas[i];
         ctx.drawImage(bmb.imagem,bmb.x,bmb.y,bmb.largura,bmb.altura);
@@ -297,7 +368,7 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
 //movimento
 var mvLeft = mvUp = mvRight = mvDown = bomb = false;
 var velocidade = 2;
-
+var yorX;
 var x;
 var y;
 var xBomba = undefined;
@@ -308,32 +379,38 @@ var explosao2;
 var explosao3;
 var explosao4;
 var colidiu = false;
+var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção em um determinado tempo
+var fase = 1;
 
 
 //Arrays
 var bombas = [];
 var sprites = [];
+var spritesInimigo = [];
 var paredes = [];
 var paredesD = [];
 var arrayExplosao = [];
 //Array em forma de matriz para desenharmos o mapa.
-var mapa = [ 
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,2,0,0,0,0,0,0,0,2,0,0,0,1],
-    [1,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
+
+if(fase === 1){
+    var mapa = [ 
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,2,0,0,0,0,0,0,0,2,0,0,0,1],
+        [1,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
 ]
+}
 
 //Lógica para varrer o vetor da matriz do mapa.
 for(var linhas in mapa){
@@ -372,9 +449,17 @@ imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/publ
 var imagemExplosao = new Image();
 imagemExplosao.src = "http://static.everypixel.com/ep-pixabay/1558/7758/3940/19731/15587758394019731930-explosion.jpg";
 
+var imagemInimigo = new Image();
+imagemInimigo.src ="https://static.wikia.nocookie.net/bomberman/images/4/40/Bomberman_Branco.png/revision/latest?cb=20180408015940&path-prefix=pt-br";
+
+
 //Declarando objetos.
 var boneco = new Sprite(100,100,40,40,imagemBoneco);
 sprites.push(boneco);
+
+//Comentário
+var inimigo = new Sprite(200,200,40,40,imagemInimigo);
+sprites.push(inimigo);
 
 //Chamando a função loop pela primeira vez para que ela se repita sozinha logo em seguida. 
 loop();
