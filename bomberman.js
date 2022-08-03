@@ -49,9 +49,10 @@ Bomba.prototype.centroY = function(){
 //Funções
 function loop (){ 
     window.requestAnimationFrame(loop,tela);
+     desenha();
     atualiza();
-    desenha();
-    console.log(arrayExplosao);
+   
+    console.log(paredesD);
 }
 
 function atualiza(){
@@ -68,11 +69,12 @@ function atualiza(){
         boneco.y += velocidade;
     } 
    
-    //colisões
+    //colisões de bloqueio
     for(let i in paredes){
         let prd = paredes[i];
         colisao(boneco,prd);
     }
+
     for (let i in paredesD) {
         let prd = paredesD[i];
         colisao(boneco, prd);
@@ -83,6 +85,30 @@ function atualiza(){
             colisao(boneco, prd);    
         }  
     }
+
+    //Colisões diferentes
+    /*for(let i in arrayExplosao) {
+        let prd = arrayExplosao[i];
+        colisao2(boneco, prd);
+    }
+    if(colidiu){
+        alert("Morreu!");
+        colidiu = false;
+    }*/
+    for(let i2 in paredesD){
+        let prdD = paredesD[i2]
+       for(let i in arrayExplosao) {
+            let prd = arrayExplosao[i]
+            colisao2(prdD,prd);
+            if(colidiu){
+                colidiu = false;
+                paredesD.splice(i2,1);
+                
+            }
+        } 
+    }
+        
+
 }
 
 function desenha() {
@@ -95,7 +121,7 @@ function desenha() {
         ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
     }
     //Lógica para varrer o vetor da matriz do mapa.
-    for(var linhas in mapa){
+    /*for(var linhas in mapa){
         for(var colunas in mapa[linhas]){
             var bloco = mapa[linhas][colunas];
             if(bloco === 1){
@@ -109,8 +135,18 @@ function desenha() {
                 ctx.drawImage(imagemParedeD,x,y,50,50);
             }
         }
+    }*/
+
+    //desenhar 1 e 2 da matriz de outra forma
+    for(i = 0; i<paredes.length; i++){
+         prd = paredes[i];
+        ctx.drawImage(imagemParede,prd.x,prd.y,prd.largura,prd.altura);  
     }
-   
+    for(i = 0; i<paredesD.length; i++){
+         prd = paredesD[i];
+        ctx.drawImage(imagemParedeD,prd.x,prd.y,prd.largura,prd.altura);  
+    }
+
     for(var i = 0; i<bombas.length; i++){
         var bmb = bombas[i];
         ctx.drawImage(bmb.imagem,bmb.x,bmb.y,bmb.largura,bmb.altura);
@@ -168,6 +204,35 @@ function colisao(r1,r2){
                 r1.x += diferencaX;
             } else {
                 r1.x -= diferencaX;
+            }
+        }
+    }
+
+}
+
+function colisao2(r1,r2){
+    var catX = r1.centroX() - r2.centroX();
+    var catY = r1.centroY() - r2.centroY();
+
+    //soma das metades
+    var smMetadeLargura = r1.metadeLargura() + r2.metadeLargura();
+    var smMetadeAltura = r1.metadeAltura() + r2.metadeAltura();
+
+    if(Math.abs(catX) < smMetadeLargura && Math.abs(catY) < smMetadeAltura){
+        var diferencaX = smMetadeLargura - Math.abs(catX);
+        var diferencaY = smMetadeAltura - Math.abs(catY);
+
+        if(diferencaX >= diferencaY){//colisão por cima ou por baixo
+            if(catY > 0){//por cima
+                colidiu = true;
+            } else {
+                colidiu = true;
+            }
+        } else {// colisão pela esquerda ou direita
+            if(catX > 0){//pela esquerda
+                colidiu = true;
+            } else {
+                colidiu = true;
             }
         }
     }
@@ -242,6 +307,8 @@ var explosao1;
 var explosao2;
 var explosao3;
 var explosao4;
+var colidiu = false;
+
 
 //Arrays
 var bombas = [];
@@ -254,16 +321,16 @@ var mapa = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,0,0,0,2,0,0,0,1],
     [1,0,2,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,2,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,2,0,0,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
 ]
