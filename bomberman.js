@@ -1,10 +1,13 @@
 class Sprite {
-    constructor(x, y, largura, altura, imagem, tempoDeExplosao = 2000) {
+    constructor(x, y, largura, altura, imagem, tempoDeExplosao = 2000, imgx) {
         this.y = y;
         this.x = x;
         this.largura = largura;
         this.altura = altura;
         this.imagem = imagem;
+        this.imgX = 0;
+        this.imgY = 0;
+        this.contadorAnim = 0;
         this.momentoCriacao = new Date();
         this.tempoDeExplosao = 2000;
     }
@@ -60,16 +63,33 @@ function loop (){
 function atualiza(){
     if(mvLeft && !mvRight && !mvDown && !mvUp){
         boneco.x -= velocidade;
+        boneco.imgY = tamanhoImg + boneco.altura * 2;
     }
     if(mvRight && !mvLeft && !mvDown && !mvUp){
         boneco.x += velocidade;
+        boneco.imgY = tamanhoImg + boneco.altura * 1;
     }
     if(mvUp && !mvDown){
         boneco.y -= velocidade;
+        boneco.imgY = tamanhoImg + boneco.altura * 0;
     }
     if(mvDown && !mvUp){
         boneco.y += velocidade;
+        boneco.imgY = 0 + 0 * 2;
     } 
+
+    if(mvLeft || mvRight || mvUp || mvDown){
+        boneco.contadorAnim++;
+
+        if(boneco.contadorAnim >= 60){
+            boneco.contadorAnim = 0;
+        }
+
+        boneco.imgX = Math.floor(boneco.contadorAnim/15) * boneco.largura;
+    } else{
+        boneco.imgX = 0;
+        boneco.contadorAnim = 0;
+    }
    
     //colisões de bloqueio
     for(let i in paredes){
@@ -253,24 +273,33 @@ function desenha() {
     //Personagem
     for(var i in sprites){
         var spr = sprites[i];
-        ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
+        ctx.drawImage(
+            imagemBoneco,
+            spr.imgX,spr.imgY,spr.largura,spr.altura,
+            spr.x,spr.y,spr.largura,spr.altura
+        ) ;
     }
 
     //Inimigo
     for(var i in spritesInimigo){
         var spr = spritesInimigo[i];
-        ctx.drawImage(spr.imagem,spr.x, spr.y, spr.largura, spr.altura); 
+        ctx.drawImage(
+            imagemInimigo,
+            spr.imgX,spr.imgY,spr.largura,spr.altura,
+            spr.x,spr.y,spr.largura,spr.altura
+        );
     }
 
     //Desenhar as paredes
-    for(i = 0; i<paredes.length; i++){
-         prd = paredes[i];
-        ctx.drawImage(imagemParede,prd.x,prd.y,prd.largura,prd.altura);  
+   for(i = 0; i<paredes.length; i++){
+         var prd = paredes[i];
+        ctx.drawImage(prd.imagem,prd.x,prd.y,prd.largura,prd.altura);  
     }
     for(i = 0; i<paredesD.length; i++){
-         prd = paredesD[i];
-        ctx.drawImage(imagemParedeD,prd.x,prd.y,prd.largura,prd.altura);  
+         var prd = paredesD[i];
+        ctx.drawImage(prd.imagem,prd.x,prd.y,prd.largura,prd.altura);  
     }
+    
 
 
     //Explosão da bomba
@@ -448,6 +477,7 @@ var velocidade = 2;
 var yorX;
 var x;
 var y;
+var tamanhoImg = 30;
 var xBomba = undefined;
 var yBomba= undefined;  
 var bomba;
@@ -455,6 +485,43 @@ var explosao1;
 var colidiu = false;
 var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção em um determinado tempo
 var fase = 1;
+
+//Definindo imagens.
+var imagemBoneco = new Image();
+imagemBoneco.src ="spriteporco/porcosheet.png";
+
+var imagemCercaCB = new Image();
+imagemCercaCB.src ="img/pngcercaCB.png";
+
+var imagemCercaED = new Image();
+imagemCercaED.src ="img/pngcercaED.png";
+
+var imagemCercaCanto1 = new Image();
+imagemCercaCanto1.src ="img/pngcercaCanto1.png";
+
+var imagemCercaCanto2 = new Image();
+imagemCercaCanto2.src ="img/pngcercaCanto2.png";
+
+var imagemCercaCanto3 = new Image();
+imagemCercaCanto3.src ="img/pngcercaCanto3.png";
+
+var imagemCercaCanto4 = new Image();
+imagemCercaCanto4.src ="img/pngcercaCanto4.png";
+
+var imagemPedra = new Image();
+imagemPedra.src = "img/pngrocha.png";
+
+var imagemTronco = new Image();
+imagemTronco.src = "img/pngmadera.png";
+
+var imagemBomba = new Image();
+imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+
+var imagemExplosao = new Image();
+imagemExplosao.src = "img/pngexplosao.png";
+
+var imagemInimigo = new Image();
+imagemInimigo.src ="spriteporco/lobinhosheet.png";
 
 
 //Arrays
@@ -471,21 +538,21 @@ var arrayExplosaoC =[];
 
 if(fase === 1){
     var mapa = [ 
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [4,2,2,2,2,2,2,2,2,2,2,2,2,2,5],
+        [1,0,0,0,0,7,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,7,0,7,0,0,0,0,0,0,1],
+        [1,0,0,0,0,7,0,0,0,0,8,0,0,0,1],
+        [1,0,0,0,8,8,0,7,0,0,0,0,0,0,1],
+        [1,7,7,7,7,8,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,7,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
+        [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,2,2,0,2,2,2,0,2,2,2,0,0,0,1],
-        [1,2,2,0,2,2,0,2,2,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,7,0,0,8,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1,0,0,2,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
+        [3,2,2,2,2,2,2,2,2,2,2,2,2,2,6]         
 ]
 }
 
@@ -496,46 +563,65 @@ for(var linhas in mapa){
         if(bloco === 1){
             x = colunas*50;
             y = linhas*50;
-            var parede = new Sprite(x,y,50,50,imagemBoneco);
+            var parede1 = new Sprite(x,y,50,50,imagemCercaED);
+            paredes.push(parede1);
         }
         if(bloco === 2){
+            x = colunas*50;
+            y = linhas*50;
+            var parede2 = new Sprite(x,y,50,50,imagemCercaCB);
+            paredes.push(parede2);
+        }
+        if(bloco === 3){
+            x = colunas*50;
+            y = linhas*50;
+            var parede3 = new Sprite(x,y,50,50,imagemCercaCanto1);
+            paredes.push(parede3);
+        }
+        if(bloco === 4){
+            x = colunas*50;
+            y = linhas*50;
+            var parede4 = new Sprite(x,y,50,50,imagemCercaCanto2);
+            paredes.push(parede4);
+        }
+        if(bloco === 5){
+            x = colunas*50;
+            y = linhas*50;
+            var parede5 = new Sprite(x,y,50,50,imagemCercaCanto3);
+            paredes.push(parede5);
+        }
+        if(bloco === 6){
+            x = colunas*50;
+            y = linhas*50;
+            var parede6 = new Sprite(x,y,50,50,imagemCercaCanto4);
+            paredes.push(parede6);
+        }
+
+        if(bloco === 7){
             x = colunas*50
             y = linhas*50
-            var paredeD = new Sprite(x, y, 50, 50, imagemParedeD)
-            paredesD.push(paredeD);
+            var parede7 = new Sprite(x, y, 50, 50, imagemPedra)
+            paredes.push(parede7);
+        }
+        if(bloco === 8){
+            x = colunas*50
+            y = linhas*50
+            var parede8 = new Sprite(x, y, 50, 50, imagemTronco)
+            paredesD.push(parede8);
         }
         
-        paredes.push(parede);
+        
         
     }  
 } 
 
-//Definindo imagens.
-var imagemBoneco = new Image();
-imagemBoneco.src ="https://art.pixilart.com/c5e4d357e30cf9d.png";
-
-var imagemParede = new Image();
-imagemParede.src = "https://imgur.com/EkleLlt.png";
-
-var imagemParedeD = new Image();
-imagemParedeD.src = "https://imgur.com/C46n8aY.png";
-
-var imagemBomba = new Image();
-imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
-
-var imagemExplosao = new Image();
-imagemExplosao.src = "http://static.everypixel.com/ep-pixabay/1558/7758/3940/19731/15587758394019731930-explosion.jpg";
-
-var imagemInimigo = new Image();
-imagemInimigo.src ="https://static.wikia.nocookie.net/bomberman/images/4/40/Bomberman_Branco.png/revision/latest?cb=20180408015940&path-prefix=pt-br";
-
 
 //Declarando objetos.
-var boneco = new Sprite(100,100,40,40,imagemBoneco);
+var boneco = new Sprite(100,100,30,30,imagemBoneco);
 sprites.push(boneco);
 
 //Comentário
-var inimigo = new Sprite(200,200,40,40,imagemInimigo);
+var inimigo = new Sprite(200,200,30,30,imagemInimigo);
 sprites.push(inimigo);
 
 //Chamando a função loop pela primeira vez para que ela se repita sozinha logo em seguida. 
