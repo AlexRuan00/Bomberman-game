@@ -9,7 +9,7 @@ class Sprite {
         this.imgY = 0;
         this.contadorAnim = 0;
         this.momentoCriacao = new Date();
-        this.tempoDeExplosao = 2000;
+        this.tempoDeExplosao = 500;
     }
 }
 
@@ -57,7 +57,7 @@ function loop (){
     atualiza();
     
     
-    console.log(arrayExplosaoD);
+    console.log(tempo);
 }
 
 function atualiza(){
@@ -92,6 +92,7 @@ function atualiza(){
     }
 
     //colisões de bloqueio
+    var arrayExplosoes = [...arrayExplosaoB, ...arrayExplosaoC, ...arrayExplosaoD, ...arrayExplosaoE];
     for(let i in paredes){
         let prd = paredes[i];
         colisao(boneco,prd);
@@ -102,6 +103,14 @@ function atualiza(){
         let prd = paredesD[i];
         colisao(boneco, prd);
         colisao(inimigo,prd);
+    }
+    for (let i in arrayExplosoes) {
+        let prd = arrayExplosoes[i];
+        //colisao2(boneco, prd);
+        colisao2(inimigo,prd);
+        if(colidiu){
+            inimigo.x = 900;
+        }
     }
     for (let i in bombas) {
         let prd = bombas[i];
@@ -116,14 +125,30 @@ function atualiza(){
 
 
     //Colisões diferentes
-    /*for(let i in arrayExplosaoD) {
-        let prd = arrayExplosaoD[i];
+    for(let i in arrayExplosoes) {
+        let prd = arrayExplosoes[i];
         colisao2(boneco, prd);
+        
     }
     if(colidiu){
-        alert("Morreu!");
+        if(tempo>500){
+            vidas --;    
+            tempo = 0;
+        }
         colidiu = false;
-    }*/
+    }
+
+    colisao2(inimigo,boneco);
+    tempo ++;
+    if(colidiu){
+        if(tempo>500){
+            vidas --;    
+            tempo = 0;
+        }
+        colidiu = false;
+    }
+
+
     for(let i2 in paredes){
         let prdD = paredes[i2]
         for(let i in arrayExplosaoD) {
@@ -233,6 +258,8 @@ function atualiza(){
         inimigo.contadorAnim = 0;
     }
 
+    mostrarVida.textContent = ("Vidas: "+vidas);
+
 }
 
 //Função para desenhar tudo na tela.
@@ -241,16 +268,33 @@ function desenha() {
     var y;
     ctx.clearRect(0,0,tela.width,tela.height); //Limpando a tela.
 
-    //Personagem
+    //Personagem e inimigos
     for(var i in sprites){
         var spr = sprites[i];
-        ctx.drawImage(
-            spr.imagem,
-            spr.imgX,spr.imgY,spr.largura,spr.altura,
-            spr.x,spr.y,spr.largura,spr.altura
-            ) ;
+        if(spr != boneco){
+            ctx.drawImage(
+                spr.imagem,
+                spr.imgX,spr.imgY,spr.largura,spr.altura,
+                spr.x,spr.y,spr.largura,spr.altura
+                ) ;
+        }
     }
-
+    
+    if(tempo < 500 && tempo%20 === 0){
+       teste = !teste;
+    }  
+    if(tempo>500){
+        teste = true;
+    }
+    if(teste){
+       ctx.drawImage(
+        imagemBoneco,
+        boneco.imgX,boneco.imgY,boneco.largura,boneco.altura,
+        boneco.x,boneco.y,boneco.largura,boneco.altura
+        ) ; 
+    }
+    
+   
 
     //Desenhar as paredes
     for(i = 0; i<paredes.length; i++){
@@ -504,6 +548,9 @@ var velocidade = 1;
 var yorX;
 var x;
 var y;
+
+var teste = true;
+var tempo = 1000;
 var tamanhoImg = 30;
 var xBomba = undefined;
 var yBomba= undefined;  
@@ -512,10 +559,15 @@ var explosao1;
 var colidiu = false;
 var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção em um determinado tempo
 var fase = 1;
+var mostrarVida = document.getElementById("vida");
+var vidas = 5;
 
 //Definindo imagens.
 var imagemBoneco = new Image();
 imagemBoneco.src ="spriteporco/porcosheet.png";
+
+var imagemNada = new Image();
+imagemNada.src ="spriteporco/nada.png";
 
 var imagemCercaCB = new Image();
 imagemCercaCB.src ="img/pngcercaCB.png";
