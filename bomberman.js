@@ -109,6 +109,7 @@ function atualiza(){
         //colisao2(boneco, prd);
         colisao2(inimigo,prd);
         if(colidiu){
+            colidiu = false;
             inimigo.x = 900;
         }
     }
@@ -197,6 +198,18 @@ function atualiza(){
             }
         } 
     }
+
+    //Pegar os PowerUps
+    colisao2(boneco,powerUpE);
+    if(colidiu){
+        if(tempoE>500){
+            tE ++;    
+            tempoE = 0;
+        }
+        colidiu = false;
+        powerUpExplosao.pop();
+        powerUpOnOff = false;
+    }
     
     //Movimentação do Inimigo    
 
@@ -207,43 +220,35 @@ function atualiza(){
     if(tempoInimigo === 60){
         tempoInimigo = 0;
         yorX = Math.floor(Math.random() * 4);   //Número aléatorio de 1 a 4, definindo a direção do inimigo
-
     }
 
    //Para a esquerda
    if(yorX === 0){
+        inimigo.x -= 0.8;
+        inimigo.imgY = tamanhoImg + inimigo.altura * 2;
+        //inimigo.y = 0;
+    }
 
-    inimigo.x -= 0.8;
-    inimigo.imgY = tamanhoImg + inimigo.altura * 2;
-            //inimigo.y = 0;
-            
-
-
-        }
     //Para a direita
     if(yorX === 1){
-
         inimigo.x += 0.8;
         inimigo.imgY = tamanhoImg + inimigo.altura * 1;
-            //inimigo.y = 0;
+        //inimigo.y = 0;
             
-        }
+    }
+
     //Para cima
     if(yorX === 2){
-
         inimigo.y -= 0.8;
         inimigo.imgY = tamanhoImg + inimigo.altura * 0;
         //inimigo.x = 0;
-
     }
 
     //Para baixo
     if(yorX === 3){
-
         inimigo.y += 0.8;
         inimigo.imgY = 0 + 0 * 2;
         //inimigo.x = 0;
-
     }
     if(yorX === 0 || yorX === 1 || yorX === 2 || yorX === 3){
         inimigo.contadorAnim++;
@@ -256,7 +261,7 @@ function atualiza(){
     } else{
         inimigo.imgX = 0;
         inimigo.contadorAnim = 0;
-    }
+        }
 
     mostrarVida.textContent = ("Vidas: "+vidas);
 
@@ -317,7 +322,7 @@ function desenha() {
         var fogoColidiuE = false;
         var fogoColidiuC = false;
         if(((new Date())-bombas[i].momentoCriacao)>bombas[i].tempoDeDetonacao){ 
-            for(var i=0; i<50*3 ; i=i+50){
+            for(var i=0; i<50*tE ; i=i+50){
                 explosao = new Sprite(bmb.x+i,bmb.y,bmb.largura,bmb.altura,imagemExplosao);
                 if(!fogoColidiuD){
                     arrayExplosaoD.push(explosao);
@@ -332,11 +337,12 @@ function desenha() {
                             colidiu = false;
                             arrayExplosaoD.splice(i,10);
                             paredesD.splice(i2,1);
+                            
                         }   
                     } 
                 }
             }    
-            for(var i=50; i<50*3 ; i=i+50){
+            for(var i=50; i<50*tE ; i=i+50){
                 explosao = new Sprite(bmb.x,bmb.y+i,bmb.largura,bmb.altura,imagemExplosao);
                 if(!fogoColidiuB){
                     arrayExplosaoB.push(explosao);
@@ -357,7 +363,7 @@ function desenha() {
 
             }
             
-            for(var i=50; i<50*3 ; i=i+50){
+            for(var i=50; i<50*tE ; i=i+50){
                 explosao = new Sprite(bmb.x-i,bmb.y,bmb.largura,bmb.altura,imagemExplosao);
                 if(!fogoColidiuE){
                     arrayExplosaoE.push(explosao);
@@ -376,7 +382,7 @@ function desenha() {
                     } 
                 }
             }     
-            for(var i=50; i<50*3 ; i=i+50){
+            for(var i=50; i<50*tE ; i=i+50){
                 explosao = new Sprite(bmb.x,bmb.y-i,bmb.largura,bmb.altura,imagemExplosao);
                 if(!fogoColidiuC){
                     arrayExplosaoC.push(explosao);
@@ -426,6 +432,15 @@ function desenha() {
             arrayExplosaoD.shift();
         }
     }   
+    
+    //desenhar os powerups
+    for(var i in powerUpExplosao){
+        if(powerUpOnOff){
+            var pue = powerUpExplosao[i];
+            ctx.drawImage(imagemPowerUpExplosao,pue.x,pue.y,pue.largura,pue.altura)
+        }
+    }
+   
     
 }
 
@@ -492,26 +507,26 @@ window.addEventListener("keydown",function (e){
     var key = e.keyCode;
     switch(key){
         case LEFT:
-        mvLeft = true;
-        break;
+            mvLeft = true;
+            break;
         case UP:
-        mvUp = true;
-        break;
+            mvUp = true;
+            break;
         case RIGHT:
-        mvRight = true;
-        break;
+            mvRight = true;
+            break;
         case DOWN:
-        mvDown = true;
-        break;
+            mvDown = true;
+            break;
         case SPACE:
-        if(bombas.length<2){
-            xBomba = Math.floor(boneco.centroX()/50)*50; 
-            yBomba = Math.floor(boneco.centroY()/50)*50;
-            bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
-            bombas.push(bomba);
+            if(bombas.length<2){
+                xBomba = Math.floor(boneco.centroX()/50)*50; 
+                yBomba = Math.floor(boneco.centroY()/50)*50;
+                bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
+                bombas.push(bomba);
             
-            break; 
-        }
+                break; 
+            }
     }   
 }, false)
 
@@ -519,17 +534,17 @@ window.addEventListener("keyup",function (e){
     var key = e.keyCode;
     switch (key){
         case LEFT:
-        mvLeft = false;
-        break;
+            mvLeft = false;
+            break;
         case UP:
-        mvUp = false;
-        break;
+            mvUp = false;
+            break;
         case RIGHT:
-        mvRight = false;
-        break;
+            mvRight = false;
+            break;
         case DOWN:
-        mvDown = false;
-        break; 
+            mvDown = false;
+            break; 
 
     }
 
@@ -544,18 +559,20 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
 
 //movimento
 var mvLeft = mvUp = mvRight = mvDown = bomb = false;
-var velocidade = 1;
+var velocidade = 4;
 var yorX;
 var x;
 var y;
 
 var teste = true;
 var tempo = 1000;
+var tempoE = 1000;
 var tamanhoImg = 30;
 var xBomba = undefined;
 var yBomba= undefined;  
 var bomba;
-var explosao1;
+var powerUpOnOff = true;
+var tE = 3;
 var colidiu = false;
 var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção em um determinado tempo
 var fase = 1;
@@ -594,16 +611,20 @@ var imagemTronco = new Image();
 imagemTronco.src = "img/pngmadera.png";
 
 var imagemBomba = new Image();
-imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+imagemBomba.src ="img/pngbomba.png";
 
 var imagemExplosao = new Image();
 imagemExplosao.src = "img/pngexplosao.png";
+
+var imagemPowerUpExplosao = new Image();
+imagemPowerUpExplosao.src = "img/powerupexplosao.png";
 
 var imagemInimigo = new Image();
 imagemInimigo.src ="spriteporco/lobinhosheet.png";
 
 
 //Arrays
+var powerUpExplosao = [];
 var bombas = [];
 var sprites = [];
 var spritesInimigo = [];
@@ -688,9 +709,6 @@ for(var linhas in mapa){
             var parede8 = new Sprite(x, y, 50, 50, imagemTronco)
             paredesD.push(parede8);
         }
-        
-        
-        
     }  
 } 
 
@@ -698,6 +716,9 @@ for(var linhas in mapa){
 //Declarando objetos.
 var boneco = new Sprite(100,100,30,30,imagemBoneco);
 sprites.push(boneco);
+
+var powerUpE = new Sprite(500,500,30,30,imagemPowerUpExplosao);
+powerUpExplosao.push(powerUpE);
 
 //Comentário
 var inimigo = new Sprite(200,200,30,30,imagemInimigo);
