@@ -55,7 +55,7 @@ function loop (){
     window.requestAnimationFrame(loop,tela);
     desenha();
     atualiza();
-    
+    mudarFase();
     
     console.log(tempo);
 }
@@ -104,14 +104,16 @@ function atualiza(){
         colisao(boneco, prd);
         colisao(inimigo,prd);
     }
-    for (let i in arrayExplosoes) {
-        let prd = arrayExplosoes[i];
-        //colisao2(boneco, prd);
-        colisao2(inimigo,prd);
-        if(colidiu){
-            colidiu = false;
-            inimigo.x = 900;
-        }
+    for(let i2 in inimigos){
+        let ini = inimigos[i2]
+        for(let i in arrayExplosoes) {
+            let exp = arrayExplosoes[i]
+            colisao2(ini,exp);
+            if(colidiu){
+                colidiu = false;
+                inimigos.splice(i2,1);
+            }
+        } 
     }
     for (let i in bombas) {
         let prd = bombas[i];
@@ -139,16 +141,20 @@ function atualiza(){
         colidiu = false;
     }
 
-    colisao2(inimigo,boneco);
-    tempo ++;
-    if(colidiu){
-        if(tempo>500){
-            vidas --;    
-            tempo = 0;
+    for (let i in inimigos) {
+        let ini = inimigos[i];
+      
+        colisao2(ini,boneco);
+        if(colidiu){
+            if(tempo>500){
+                vidas --;    
+                tempo = 0;
+            }
+            colidiu = false;
         }
-        colidiu = false;
     }
-
+    tempo ++;
+   
 
     for(let i2 in paredes){
         let prdD = paredes[i2]
@@ -282,20 +288,25 @@ function atualiza(){
 
 //Função para desenhar tudo na tela.
 function desenha() {
+    if(fase === 1){
+        document.getElementById("jogo").style.backgroundImage = "url('https://i.imgur.com/N0Y3SFj.jpg')";   
+    }
+    if(fase === 2){
+        document.getElementById("jogo").style.backgroundImage = "url('https://w7.pngwing.com/pngs/644/969/png-transparent-texture-mapping-opengameart-org-gimp-tile-paper-sand-texture-brown-isometric-graphics-in-video-games-and-pixel-art.png')";   
+    }
+    
     var x;
     var y;
     ctx.clearRect(0,0,tela.width,tela.height); //Limpando a tela.
 
     //Personagem e inimigos
-    for(var i in sprites){
-        var spr = sprites[i];
-        if(spr != boneco){
+    for(var i in inimigos){
+        var spr = inimigos[i];
             ctx.drawImage(
                 spr.imagem,
                 spr.imgX,spr.imgY,spr.largura,spr.altura,
                 spr.x,spr.y,spr.largura,spr.altura
                 ) ;
-        }
     }
     
     if(tempo < 500 && tempo%20 === 0){
@@ -453,6 +464,11 @@ function desenha() {
             ctx.drawImage(pue.imagem,pue.x,pue.y,pue.largura,pue.altura)
         }
     }
+
+    //Desenhando a porta
+    if(inimigos.length === 0){
+        ctx.drawImage(porta.imagem,porta.x,porta.y,porta.largura,porta.altura);
+    }
    
     
 }
@@ -524,6 +540,17 @@ window.addEventListener("keydown",function (e){
             break;
         case UP:
             mvUp = true;
+            colisao2(boneco,porta)
+            if(colidiu && inimigos.length === 0){
+                colidiu = false;
+                paredes = [];
+                paredesD = [];    
+                fase = 2;
+                rodou = false;
+                boneco.x = 100;
+                boneco.y = 100;
+                porta.x = 900;
+            }
             break;
         case RIGHT:
             mvRight = true;
@@ -563,6 +590,139 @@ window.addEventListener("keyup",function (e){
 
 }, false)
 
+function mudarFase(){
+    //Array em forma de matriz para desenharmos o mapa.
+    if(fase === 1){
+        mapa = [ 
+        [4,2,2,2,2,2,2,2,2,2,2,2,2,2,5],
+        [1,0,0,0,0,7,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,7,0,7,0,0,0,0,0,0,1],
+        [1,0,0,0,0,7,0,0,0,0,8,0,0,0,1],
+        [1,0,0,0,8,8,0,7,0,0,0,0,0,0,1],
+        [1,7,0,0,7,8,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,7,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
+        [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,7,0,0,8,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [3,2,2,2,2,2,2,2,2,2,2,2,2,2,6]         
+        ]
+    }
+    
+    if(fase === 2){
+
+
+
+
+     mapa = [ 
+     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+     [1,1,1,0,0,8,0,0,0,0,0,0,1,1,1],
+     [1,1,0,0,0,8,0,8,0,0,0,0,1,1,1],
+     [1,0,0,0,0,8,0,0,0,0,0,0,0,0,1],
+     [1,0,0,0,8,8,0,8,0,0,0,0,0,0,1],
+     [1,8,0,0,8,8,0,0,0,0,0,0,0,0,1],
+     [1,0,0,0,0,0,0,8,0,0,0,0,0,0,1],
+     [1,0,0,0,0,0,1,1,1,0,0,0,0,0,1],
+     [1,0,0,0,0,0,1,1,1,0,0,0,0,0,1],
+     [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
+     [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
+     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+     [1,1,1,0,0,0,0,8,0,0,8,0,1,1,1],
+     [1,1,1,0,0,0,0,0,0,0,0,0,1,1,1],
+     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
+     ]
+ }
+
+    //Lógica para varrer o vetor da matriz do mapa.
+
+
+
+
+    if(!rodou){
+        for(var linhas in mapa){
+            for(var colunas in mapa[linhas]){
+                var bloco = mapa[linhas][colunas];
+                if(bloco === 1 && fase === 1){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede1 = new Sprite(x,y,50,50,imagemCercaED);
+                    paredes.push(parede1);
+                }
+                if(bloco === 1 && fase === 2){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede1 = new Sprite(x,y,50,50,imagemEgito);
+                    paredes.push(parede1);
+                }
+                if(bloco === 2){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede2 = new Sprite(x,y,50,50,imagemCercaCB);
+                    paredes.push(parede2);
+                }
+                if(bloco === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede3 = new Sprite(x,y,50,50,imagemCercaCanto1);
+                    paredes.push(parede3);
+                }
+                if(bloco === 4){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede4 = new Sprite(x,y,50,50,imagemCercaCanto2);
+                    paredes.push(parede4);
+                }
+                if(bloco === 5){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede5 = new Sprite(x,y,50,50,imagemCercaCanto3);
+                    paredes.push(parede5);
+                }
+                if(bloco === 6){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede6 = new Sprite(x,y,50,50,imagemCercaCanto4);
+                    paredes.push(parede6);
+                }
+
+                if(bloco === 7){
+                    x = colunas*50
+                    y = linhas*50
+                    var parede7 = new Sprite(x, y, 50, 50, imagemPedra)
+                    paredes.push(parede7);
+                }
+                if(bloco === 8 && fase === 1){
+                    x = colunas*50
+                    y = linhas*50
+                    var parede8 = new Sprite(x, y, 50, 50, imagemTronco)
+                    paredesD.push(parede8);
+                }
+                if(bloco === 8 && fase === 2){
+                    x = colunas*50
+                    y = linhas*50
+                    var parede8 = new Sprite(x, y, 50, 50, imagemEgitoD)
+                    paredesD.push(parede8);
+                }
+
+
+
+
+
+
+
+            } 
+            rodou = true; 
+        } 
+
+    }
+
+
+
+}
+
 
 var tela = document.querySelector("canvas");
 var ctx = tela.getContext("2d");
@@ -577,6 +737,7 @@ var yorX;
 var x;
 var y;
 
+var rodou = false;
 var teste = true;
 var tempo = 1000;
 var tempoE = 1000;
@@ -620,6 +781,12 @@ imagemPedra.src = "img/pngrocha.png";
 var imagemTronco = new Image();
 imagemTronco.src = "img/pngmadera.png";
 
+var imagemEgito = new Image();
+imagemEgito.src = "imgfase2/Egito.png";
+
+var imagemEgitoD = new Image();
+imagemEgitoD.src = "imgfase2/EgitoD.png";
+
 var imagemBomba = new Image();
 imagemBomba.src ="img/pngbomba.png";
 
@@ -632,6 +799,8 @@ pueImagem.src = "img/powerupexplosao.png";
 var imagemInimigo = new Image();
 imagemInimigo.src ="spriteporco/lobinhosheet.png";
 
+var imagemPorta = new Image();
+imagemPorta.src ="https://imgur.com/Ou9w4gH.png";
 
 //Arrays
 var powerUpExplosao = [];
@@ -644,83 +813,8 @@ var arrayExplosaoD = [];
 var arrayExplosaoB = [];
 var arrayExplosaoE = [];
 var arrayExplosaoC =[];
-//Array em forma de matriz para desenharmos o mapa.
-
-if(fase === 1){
-    var mapa = [ 
-    [4,2,2,2,2,2,2,2,2,2,2,2,2,2,5],
-    [1,0,0,0,0,7,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,7,0,7,0,0,0,0,0,0,1],
-    [1,0,0,0,0,7,0,0,0,0,8,0,0,0,1],
-    [1,0,0,0,8,8,0,7,0,0,0,0,0,0,1],
-    [1,7,0,0,7,8,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,7,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
-    [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,7,0,0,8,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [3,2,2,2,2,2,2,2,2,2,2,2,2,2,6]         
-    ]
-}
-
-//Lógica para varrer o vetor da matriz do mapa.
-for(var linhas in mapa){
-    for(var colunas in mapa[linhas]){
-        var bloco = mapa[linhas][colunas];
-        if(bloco === 1){
-            x = colunas*50;
-            y = linhas*50;
-            var parede1 = new Sprite(x,y,50,50,imagemCercaED);
-            paredes.push(parede1);
-        }
-        if(bloco === 2){
-            x = colunas*50;
-            y = linhas*50;
-            var parede2 = new Sprite(x,y,50,50,imagemCercaCB);
-            paredes.push(parede2);
-        }
-        if(bloco === 3){
-            x = colunas*50;
-            y = linhas*50;
-            var parede3 = new Sprite(x,y,50,50,imagemCercaCanto1);
-            paredes.push(parede3);
-        }
-        if(bloco === 4){
-            x = colunas*50;
-            y = linhas*50;
-            var parede4 = new Sprite(x,y,50,50,imagemCercaCanto2);
-            paredes.push(parede4);
-        }
-        if(bloco === 5){
-            x = colunas*50;
-            y = linhas*50;
-            var parede5 = new Sprite(x,y,50,50,imagemCercaCanto3);
-            paredes.push(parede5);
-        }
-        if(bloco === 6){
-            x = colunas*50;
-            y = linhas*50;
-            var parede6 = new Sprite(x,y,50,50,imagemCercaCanto4);
-            paredes.push(parede6);
-        }
-
-        if(bloco === 7){
-            x = colunas*50
-            y = linhas*50
-            var parede7 = new Sprite(x, y, 50, 50, imagemPedra)
-            paredes.push(parede7);
-        }
-        if(bloco === 8){
-            x = colunas*50
-            y = linhas*50
-            var parede8 = new Sprite(x, y, 50, 50, imagemTronco)
-            paredesD.push(parede8);
-        }
-    }  
-} 
+var mapa = [];
+var inimigos = [];
 
 
 //Declarando objetos.
@@ -732,7 +826,10 @@ powerUpExplosao.push(powerUpE);
 
 //Comentário
 var inimigo = new Sprite(200,200,30,30,imagemInimigo);
-sprites.push(inimigo);
+inimigos.push(inimigo);
+
+var porta = new Sprite(400,400,50,50,imagemPorta);
+sprites.push(porta);
 
 //Chamando a função loop pela primeira vez para que ela se repita sozinha logo em seguida. 
 loop();
