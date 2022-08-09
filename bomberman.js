@@ -200,7 +200,20 @@ function atualiza(){
     }
 
     //Pegar os PowerUps
-    colisao2(boneco,powerUpE);
+    for(let i in powerUpExplosao){
+        let pwu = powerUpExplosao[i];
+        colisao2(boneco,pwu);
+        if(colidiu){
+            if(tempoE>500){
+                tE ++;    
+                tempoE = 0;
+            }
+            colidiu = false;
+            powerUpExplosao.splice(i,1);
+            powerUpOnOff = false;
+        }
+    }    
+    /*colisao2(boneco,powerUpE);
     if(colidiu){
         if(tempoE>500){
             tE ++;    
@@ -209,7 +222,7 @@ function atualiza(){
         colidiu = false;
         powerUpExplosao.pop();
         powerUpOnOff = false;
-    }
+    }*/
     
     //Movimentação do Inimigo    
 
@@ -433,11 +446,11 @@ function desenha() {
         }
     }   
     
-    //desenhar os powerups
+    //Desenhando os powerups
     for(var i in powerUpExplosao){
         if(powerUpOnOff){
             var pue = powerUpExplosao[i];
-            ctx.drawImage(imagemPowerUpExplosao,pue.x,pue.y,pue.largura,pue.altura)
+            ctx.drawImage(pue.imagem,pue.x,pue.y,pue.largura,pue.altura)
         }
     }
    
@@ -583,9 +596,6 @@ var vidas = 5;
 var imagemBoneco = new Image();
 imagemBoneco.src ="spriteporco/porcosheet.png";
 
-var imagemNada = new Image();
-imagemNada.src ="spriteporco/nada.png";
-
 var imagemCercaCB = new Image();
 imagemCercaCB.src ="img/pngcercaCB.png";
 
@@ -616,8 +626,8 @@ imagemBomba.src ="img/pngbomba.png";
 var imagemExplosao = new Image();
 imagemExplosao.src = "img/pngexplosao.png";
 
-var imagemPowerUpExplosao = new Image();
-imagemPowerUpExplosao.src = "img/powerupexplosao.png";
+var pueImagem = new Image();
+pueImagem.src = "img/powerupexplosao.png";
 
 var imagemInimigo = new Image();
 imagemInimigo.src ="spriteporco/lobinhosheet.png";
@@ -717,7 +727,7 @@ for(var linhas in mapa){
 var boneco = new Sprite(100,100,30,30,imagemBoneco);
 sprites.push(boneco);
 
-var powerUpE = new Sprite(500,500,30,30,imagemPowerUpExplosao);
+var powerUpE = new Sprite(500,500,30,30,pueImagem);
 powerUpExplosao.push(powerUpE);
 
 //Comentário
