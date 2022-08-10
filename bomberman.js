@@ -193,25 +193,13 @@ function atualiza(){
         let pwu = powerUpExplosao[i];
         colisao2(boneco,pwu);
         if(colidiu){
-            if(tempoE>500){
-                tE ++;    
-                tempoE = 0;
-            }
+            tE ++;    
+            pwUR = undefined;
             colidiu = false;
             powerUpExplosao.splice(i,1);
             powerUpOnOff = false;
         }
     }    
-    /*colisao2(boneco,powerUpE);
-    if(colidiu){
-        if(tempoE>500){
-            tE ++;    
-            tempoE = 0;
-        }
-        colidiu = false;
-        powerUpExplosao.pop();
-        powerUpOnOff = false;
-    }*/
     
     //MOVIMENTAÇÃO DO INIMIGOS  
 
@@ -363,12 +351,11 @@ function desenha() {
     }   
     
     //Desenhando os powerups
+    
     for(var i in powerUpExplosao){
-        if(powerUpOnOff){
-            var pue = powerUpExplosao[i];
-            ctx.drawImage(pue.imagem,pue.x,pue.y,pue.largura,pue.altura)
-        }
-    }
+        var pue = powerUpExplosao[i];
+        ctx.drawImage(pue.imagem,pue.x,pue.y,pue.largura,pue.altura);
+     }
 
     //Desenhando a porta
     if(inimigos.length === 0 && paredesD.length === 0){
@@ -459,6 +446,18 @@ function detectarColisoes(ob1,ob2){
                     fogoColidiuC = true;
                 }
                 if(ob1 === paredesD){
+                    pwUR =  Math.floor(Math.random() * 9);
+                    if(pwUR >= 0 && pwUR <=1){
+                        powerUpOnOff = true;
+                        var powerUpE = new Sprite(paredesD[i2].x,paredesD[i2].y,30,30,pueImagem);
+                        powerUpExplosao.push(powerUpE);
+                    }
+                    if(pwUR >= 2 && pwUR <=3){
+                        powerUpOnOff = false;
+                    }
+                    if(pwUR >= 4 && pwUR <=9){
+                        powerUpOnOff = false;
+                    }
                     paredesD.splice(i2,1);
                 }
             }
@@ -733,6 +732,7 @@ var yorX;
 var yorX1;
 var yorX2;
 var yorX3;
+var pwUR;
 var x;
 var y;
 
@@ -750,7 +750,7 @@ var xBomba = undefined;         //posição da bomba horizontalmente
 var yBomba= undefined;          //posição da bomba verticalmente
 var bomba;
 var powerUpOnOff = true;        
-var tE = 3;                     //Tamanho da explosão, inicialmente 3 blocos 
+var tE = 2;                     //Tamanho da explosão, inicialmente 3 blocos 
 var colidiu = false;            
 var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção em um determinado tempo
 var fase = 1;                   //Fase inicial
@@ -838,8 +838,6 @@ var boneco = new Sprite(100,100,30,30,imagemBoneco);
 sprites.push(boneco);
 
 //variavel do powerUp, tendo a posição inicial dela
-var powerUpE = new Sprite(500,500,30,30,pueImagem);
-powerUpExplosao.push(powerUpE);
 
 //variavel do inimigo, tendo a posição inicial dela
 var inimigo = new Sprite(200,200,30,30,imagemInimigo);
