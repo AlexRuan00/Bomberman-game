@@ -49,6 +49,28 @@ Bomba.prototype.centroX = function(){
 Bomba.prototype.centroY = function(){
     return this.y + this.metadeAltura();
 }  
+class PlusBomba {
+    constructor(x,y,largura,altura,imagem){
+        this.x = x;
+        this.y = y;
+        this.largura = largura;
+        this.altura = altura;
+        this.imagem = imagem;
+    }
+}
+
+PlusBomba.prototype.metadeLargura = function(){
+    return this.largura/2
+}
+PlusBomba.prototype.metadeAltura = function(){
+    return this.altura/2
+}
+PlusBomba.prototype.centroX = function(){
+    return this.x + this.metadeLargura();
+}
+PlusBomba.prototype.centroY = function(){
+    return this.y + this.metadeAltura();
+}
 
 //Funções
 function loop (){ 
@@ -57,7 +79,8 @@ function loop (){
     atualiza();
     
     
-    console.log(tempo);
+    //console.log(tempo);
+
 }
 
 function atualiza(){
@@ -260,6 +283,18 @@ function atualiza(){
 
     mostrarVida.textContent = ("Vidas: "+vidas);
 
+    colisao2(boneco,novoPUBomba);
+    if(colidiu){
+        if(tempoB>500){
+            numeroDeBombas++;
+            tempoB = 0;
+        }
+        colidiu = false;
+        powerUpBombas.pop();
+        powerUpOnOff = false;
+    }
+    
+
 }
 
 //Função para desenhar tudo na tela.
@@ -301,10 +336,10 @@ function desenha() {
        var prd = paredes[i];
        ctx.drawImage(prd.imagem,prd.x,prd.y,prd.largura,prd.altura);  
    }
-   for(i = 0; i<paredesD.length; i++){
+    for(i = 0; i<paredesD.length; i++){
        var prd = paredesD[i];
        ctx.drawImage(prd.imagem,prd.x,prd.y,prd.largura,prd.altura);  
-   }
+    }
 
 
 
@@ -425,8 +460,11 @@ function desenha() {
         if(((new Date())-arrayExplosaoD[i].momentoCriacao)>arrayExplosaoD[i].tempoDeExplosao){
             arrayExplosaoD.shift();
         }
-    }   
-    
+    } 
+    if(powerUpOnOff){
+        var pub = powerUpBombas[i];
+        ctx.drawImage(pub.imagem,pub.x,pub.y,pub.largura,pub.altura);
+    }
 }
 
 function colisao(r1,r2){
@@ -503,12 +541,28 @@ window.addEventListener("keydown",function (e){
         case DOWN:
         mvDown = true;
         break;
+        //Botão usado para criar bombas.
         case SPACE:
-        if(bombas.length<2){
+        //Validação para verificar o número de bombas que pode ser colocada.
+        if(bombas.length<numeroDeBombas){
+            //Variável usada pegando o centroX do boneco para deixar a bomba no centro do bloco. 
             xBomba = Math.floor(boneco.centroX()/50)*50; 
+            //Variável usada pegando o centroY do boneco para deixar a bomba no centro do bloco.
             yBomba = Math.floor(boneco.centroY()/50)*50;
+            //Objeto bomba sendo adicionado a uma váriavel.
             bomba = new Bomba(xBomba,yBomba,50,50,imagemBomba);
-            bombas.push(bomba);
+            //Validação para colocar a primeira bomba.
+            if(bombas.length<1){
+                bombas.push(bomba);
+            }
+            /* Validação para verificar se a última bomba colocada tem a mesma localização da nova bomba.
+            Só será colocada uma nova bomba se as coordenadas forem diferentes. Foi feito usando o array das bombas,
+            pegando a última posição das bombas, comparando 3 vezes, na primeira para não ser colocada no mesmo lugar,
+            na segunda para conseguir botar em linha(mesmo x) e em coluna(no mesmo y) e na última para colocar na diagonal.
+            */
+            if(((((bombas[bombas.length-1].x) === bomba.x) && ((bombas[bombas.length-1].y) != bomba.y)) || (((bombas[bombas.length-1].y) === bomba.y) && ((bombas[bombas.length-1].x) != bomba.x))) || ((bombas[bombas.length-1].y) != bomba.y) && ((bombas[bombas.length-1].x) != bomba.x)){  
+                bombas.push(bomba);
+            }
             
             break; 
         }
@@ -544,13 +598,16 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
 
 //movimento
 var mvLeft = mvUp = mvRight = mvDown = bomb = false;
-var velocidade = 1;
+var velocidade = 4;
 var yorX;
 var x;
 var y;
 
+var powerUpOnOff = true;
+var numeroDeBombas = 1;
 var teste = true;
 var tempo = 1000;
+var tempoB = 1000;
 var tamanhoImg = 30;
 var xBomba = undefined;
 var yBomba= undefined;  
@@ -594,7 +651,7 @@ var imagemTronco = new Image();
 imagemTronco.src = "img/pngmadera.png";
 
 var imagemBomba = new Image();
-imagemBomba.src ="https://opengameart.org/sites/default/files/styles/medium/public/Bomb_anim0001.png";
+imagemBomba.src ="img/pngbomba.png";
 
 var imagemExplosao = new Image();
 imagemExplosao.src = "img/pngexplosao.png";
@@ -602,8 +659,12 @@ imagemExplosao.src = "img/pngexplosao.png";
 var imagemInimigo = new Image();
 imagemInimigo.src ="spriteporco/lobinhosheet.png";
 
+var imagemPUpB = new Image();
+imagemPUpB.src = "img/imagemPowerUpBomba.png";
+
 
 //Arrays
+var powerUpBombas = [];
 var bombas = [];
 var sprites = [];
 var spritesInimigo = [];
@@ -694,10 +755,11 @@ for(var linhas in mapa){
     }  
 } 
 
-
 //Declarando objetos.
 var boneco = new Sprite(100,100,30,30,imagemBoneco);
 sprites.push(boneco);
+var novoPUBomba = new PlusBomba(305,305,30,30,imagemPUpB);
+powerUpBombas.push(novoPUBomba);
 
 //Comentário
 var inimigo = new Sprite(200,200,30,30,imagemInimigo);
