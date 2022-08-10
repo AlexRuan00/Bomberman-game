@@ -11,7 +11,6 @@ class Sprite {
         this.contadorAnim = 0;
         this.momentoCriacao = new Date();
         this.tempoDeExplosao = 500;
-        this.aleatorio = Math.floor(Math.random() * 4);
     }
 }
 
@@ -61,7 +60,7 @@ function loop (){
     desenha();                          
     atualiza();                         
     mudarFase();                //Função para mudar de fase
-    console.log(inimigos[1].aleatorio);
+    //console.log();
 }
 
 function atualiza(){
@@ -217,56 +216,23 @@ function atualiza(){
     //MOVIMENTAÇÃO DO INIMIGOS  
 
     tempoInimigo += 1;
+    if(tempoInimigo === 60){
+        tempoInimigo = 0; 
+        yorX =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX1 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX2 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX3 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+    }
+    if(inimigos.length > 0){    
+        direcaoIni(inimigo,yorX);
 
-    for(let i in inimigos){
-        let ini = inimigos[i]
-        //condição para a cada 120 segundos, o inimigo mudar de direção.
-        if(tempoInimigo === 60){
-            tempoInimigo = 0; 
-            yorX =  ini.aleatorio  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
-        }
+        direcaoIni(inimigo2,yorX1);
 
-       //Para a esquerda
-       if(yorX === 0){
-            ini.x -= 0.8;
-            ini.imgY = tamanhoImg + ini.altura * 2;
-        }
+        direcaoIni(inimigo3,yorX2);
 
-        //Para a direita
-        if(yorX === 1){
-            ini.x += 0.8;
-            ini.imgY = tamanhoImg + ini.altura * 1;           
-        }
-
-        //Para cima
-        if(yorX === 2){
-            ini.y -= 0.8;
-            ini.imgY = tamanhoImg + ini.altura * 0;
-        }
-
-        //Para baixo
-        if(yorX === 3){
-            ini.y += 0.8;
-            ini.imgY = 0 + 0 * 2;
-        }
-
-        //Condição para a animação do personagem
-        if(yorX === 0 || yorX === 1 || yorX === 2 || yorX === 3){
-            ini.contadorAnim++;
-
-            if(ini.contadorAnim >= 60){
-                ini.contadorAnim = 0;
-            }
-
-            ini.imgX = Math.floor(ini.contadorAnim/15) * ini.largura;
-        } else{
-            ini.imgX = 0;
-            ini.contadorAnim = 0;
-        }
+        direcaoIni(inimigo4,yorX3);
     }
     mostrarVida.textContent = ("Vidas: "+vidas);    //Mostrar vida do personagem principal
-
-
 }
 
 //Função para desenhar tudo na tela.
@@ -501,6 +467,49 @@ function detectarColisoes(ob1,ob2){
 
 
 }
+function direcaoIni(iniObj,numAleatorio){
+        //condição para a cada 120 segundos, o inimigo mudar de direção.
+        
+
+       //Para a esquerda
+       if(numAleatorio === 0){
+            iniObj.x -= 0.8;
+            iniObj.imgY = tamanhoImg + iniObj.altura * 2;
+        }
+
+        //Para a direita
+        if(numAleatorio === 1){
+            iniObj.x += 0.8;
+            iniObj.imgY = tamanhoImg + iniObj.altura * 1;           
+        }
+
+        //Para cima
+        if(numAleatorio === 2){
+            iniObj.y -= 0.8;
+            iniObj.imgY = tamanhoImg + iniObj.altura * 0;
+        }
+
+        //Para baixo
+        if(numAleatorio === 3){
+            iniObj.y += 0.8;
+            iniObj.imgY = 0 + 0 * 2;
+        }
+
+        //Condição para a animação do personagem
+        if(numAleatorio === 0 || numAleatorio === 1 || numAleatorio === 2 || numAleatorio === 3){
+            iniObj.contadorAnim++;
+
+            if(iniObj.contadorAnim >= 60){
+                iniObj.contadorAnim = 0;
+            }
+
+            iniObj.imgX = Math.floor(iniObj.contadorAnim/15) * iniObj.largura;
+        } else{
+            iniObj.imgX = 0;
+            iniObj.contadorAnim = 0;
+        }
+    
+}
 //Entradas
 window.addEventListener("keydown",function (e){
     var key = e.keyCode;
@@ -540,6 +549,8 @@ window.addEventListener("keydown",function (e){
             }
     }   
 }, false)
+
+
 
 window.addEventListener("keyup",function (e){
     var key = e.keyCode;
@@ -719,6 +730,9 @@ var LEFT=37, UP=38, RIGHT=39, DOWN=40, SPACE=32;
 var mvLeft = mvUp = mvRight = mvDown = bomb = false;
 var velocidade = 4;
 var yorX;
+var yorX1;
+var yorX2;
+var yorX3;
 var x;
 var y;
 
