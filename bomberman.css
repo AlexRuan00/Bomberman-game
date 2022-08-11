@@ -22,7 +22,6 @@ body {
 	margin: auto;
 	width: 750px;
 	height: 750px;
-	background-image: url(https://i.imgur.com/N0Y3SFj.jpg);
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
@@ -50,6 +49,7 @@ body {
     color: #000;
     margin: auto;
 	width: auto;
+	font-family: cursive;
 }
 #velocidade{
 	top: 15%;
