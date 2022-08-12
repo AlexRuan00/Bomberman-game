@@ -82,7 +82,7 @@ function loop (){
     desenha();                          
     atualiza();                         
     mudarFase();                //Função para mudar de fase
-    //console.log();
+    console.log(portas.length);
 }
 
 function atualiza(){
@@ -234,6 +234,19 @@ function atualiza(){
             powerUpOnOff = false;
         }
     }
+
+    for(let i in powerUpMacas){
+        let pwM = powerUpMacas[i];
+        colisao2(boneco,pwM);
+        if(colidiu){
+            vidas ++;    
+            pwUR = undefined;
+            colidiu = false;
+            powerUpMacas.splice(i,1);
+            powerUpOnOff = false;
+        }
+        
+    }
     
     //MOVIMENTAÇÃO DO INIMIGOS  
 
@@ -244,18 +257,28 @@ function atualiza(){
         yorX1 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
         yorX2 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
         yorX3 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX10 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX11 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX12 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
+        yorX13 =  Math.floor(Math.random() * 4);  //Número aléatorio de 0 a 3, definindo a direção do inimigo;
     }
     if(inimigos.length > 0){    
         direcaoIni(inimigo,yorX);
-
         direcaoIni(inimigo2,yorX1);
-
         direcaoIni(inimigo3,yorX2);
-
         direcaoIni(inimigo4,yorX3);
+        direcaoIni(inimigo9,yorX10);
+        direcaoIni(inimigo10,yorX11);
+        direcaoIni(inimigo11,yorX12);
+        direcaoIni(inimigo12,yorX13);
     }
 
-    
+    if(inimigos.length === 0 && portas.length<1){
+        porta = new Sprite(400,400,50,50,imagemPorta);
+        portas.push(porta);
+    } if(inimigos.length > 0){
+        portas = [];
+    }
     mostrarVida.textContent = ("Vidas: "+vidas);    //Mostrar vida do personagem principal
 }
 
@@ -267,6 +290,9 @@ function desenha() {
         document.getElementById("jogo").style.backgroundImage = "url('https://i.imgur.com/N0Y3SFj.jpg')";   
     }
     if(fase === 2){
+        document.getElementById("jogo").style.backgroundImage = "url('https://w7.pngwing.com/pngs/644/969/png-transparent-texture-mapping-opengameart-org-gimp-tile-paper-sand-texture-brown-isometric-graphics-in-video-games-and-pixel-art.png')";   
+    }
+    if(fase === 3){
         document.getElementById("jogo").style.backgroundImage = "url('https://w7.pngwing.com/pngs/644/969/png-transparent-texture-mapping-opengameart-org-gimp-tile-paper-sand-texture-brown-isometric-graphics-in-video-games-and-pixel-art.png')";   
     }
     
@@ -397,10 +423,14 @@ function desenha() {
         var pub = powerUpBombas[i];
         ctx.drawImage(pub.imagem,pub.x,pub.y,pub.largura,pub.altura);
     }
+    for(var i in powerUpMacas){
+        var pum = powerUpMacas[i];
+        ctx.drawImage(pum.imagem,pum.x,pum.y,pum.largura,pum.altura);
+    }
 
     //Desenhando a porta
-    if(inimigos.length === 0 && paredesD.length === 0){
-        ctx.drawImage(porta.imagem,porta.x,porta.y,porta.largura,porta.altura);
+    if(portas.length === 1){
+        ctx.drawImage(portas[0].imagem,portas[0].x,portas[0].y,portas[0].largura,portas[0].altura);
     }
 }
 
@@ -496,6 +526,11 @@ function detectarColisoes(ob1,ob2){
                         var novoPUBomba = new PlusBomba(paredesD[i2].x,paredesD[i2].y,30,30,imagemPUpB);
                         powerUpBombas.push(novoPUBomba);
                     }
+                    if(pwUR == 1 || pwUR == 3){
+                        powerUpOnOff = true;
+                        var novoPUMaca = new Sprite(paredesD[i2].x,paredesD[i2].y,30,30,imagemPUMaca);
+                        powerUpMacas.push(novoPUMaca);
+                    }
                     paredesD.splice(i2,1);
                 }
             }
@@ -557,16 +592,19 @@ window.addEventListener("keydown",function (e){
         case UP:
             mvUp = true;
             //Caso o personagem clique para cima estando dentro da porta, é passado para a proxima fase.
-            colisao2(boneco,porta)
-            if(colidiu && inimigos.length === 0 && paredesD.length === 0){
+            if(portas.length === 1){
+                colisao2(boneco,porta);
+            }
+            
+            if(colidiu && inimigos.length === 0 ){
                 colidiu = false;
                 paredes = [];
                 paredesD = [];    
-                fase = 2;
+                fase ++;
                 rodou = false;
                 boneco.x = 100;
                 boneco.y = 100;
-                porta.x = 900;
+               
             }
             break;
         case RIGHT:
@@ -681,7 +719,7 @@ function mudarFase(){
      [1,8,0,0,8,8,0,0,0,0,0,0,0,0,1],
      [1,0,0,0,0,0,0,8,0,0,0,0,0,0,1],
      [1,0,0,0,0,0,1,1,1,0,0,0,0,0,1],
-     [1,0,0,0,0,0,1,1,1,0,0,0,0,0,1],
+     [1,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
      [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
      [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -690,6 +728,30 @@ function mudarFase(){
      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]         
      ]
  }
+ if(fase === 3){
+    mapa = [ 
+    [4,2,2,2,2,2,2,2,2,2,2,2,2,2,5],
+    [1,0,0,0,0,8,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,8,0,8,0,0,0,0,0,0,1],
+    [1,0,0,0,0,8,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,8,8,0,8,0,0,0,0,0,0,1],
+    [1,8,0,0,8,8,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,8,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,8,8,0,8,8,8,0,8,8,8,0,0,0,1],
+    [1,8,8,0,8,8,0,8,8,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,8,0,0,8,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [7,2,2,2,2,2,2,2,2,2,2,2,2,2,6]         
+    ]
+    inimigosFases3++;
+    if(inimigosFases3 === 1){
+        
+        inimigos.push(inimigo9,inimigo10,inimigo11,inimigo12);
+    }
+}
 
     //Lógica para criar as paredes do mapa
     if(!rodou){
@@ -714,41 +776,82 @@ function mudarFase(){
                     var parede1 = new Sprite(x,y,50,50,imagemEgito);
                     paredes.push(parede1);
                 }
-                if(bloco === 2){
+                if(bloco === 1 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede1 = new Sprite(x,y,50,50,torreV);
+                    paredes.push(parede1);
+                }
+                if(bloco === 2 && fase === 1){
                     x = colunas*50;
                     y = linhas*50;
                     var parede2 = new Sprite(x,y,50,50,imagemCercaCB);
                     paredes.push(parede2);
                 }
-                if(bloco === 3){
+                if(bloco === 2 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede2 = new Sprite(x,y,50,50,torreH);
+                    paredes.push(parede2);
+                }    
+                if(bloco === 3 && fase === 1){
                     x = colunas*50;
                     y = linhas*50;
                     var parede3 = new Sprite(x,y,50,50,imagemCercaCanto1);
                     paredes.push(parede3);
                 }
-                if(bloco === 4){
+                if(bloco === 3 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede3 = new Sprite(x,y,50,50,pedra);
+                    paredes.push(parede3);
+                }
+                if(bloco === 4 && fase === 1){
                     x = colunas*50;
                     y = linhas*50;
                     var parede4 = new Sprite(x,y,50,50,imagemCercaCanto2);
                     paredes.push(parede4);
                 }
-                if(bloco === 5){
+                if(bloco === 4 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede4 = new Sprite(x,y,50,50,pontaEsCima);
+                    paredes.push(parede4);
+                }    
+                if(bloco === 5 && fase === 1){
                     x = colunas*50;
                     y = linhas*50;
                     var parede5 = new Sprite(x,y,50,50,imagemCercaCanto3);
                     paredes.push(parede5);
                 }
-                if(bloco === 6){
+                if(bloco === 5 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede5 = new Sprite(x,y,50,50,pontaDiCima);
+                    paredes.push(parede5);
+                }
+                if(bloco === 6 && fase === 1){
                     x = colunas*50;
                     y = linhas*50;
                     var parede6 = new Sprite(x,y,50,50,imagemCercaCanto4);
                     paredes.push(parede6);
                 }
-
-                if(bloco === 7){
+                if(bloco === 6 && fase === 3){
+                    x = colunas*50;
+                    y = linhas*50;
+                    var parede6 = new Sprite(x,y,50,50,pontaDiBaixo);
+                    paredes.push(parede6);
+                }
+                if(bloco === 7 && fase === 1){
                     x = colunas*50
                     y = linhas*50
                     var parede7 = new Sprite(x, y, 50, 50, imagemPedra)
+                    paredes.push(parede7);
+                }
+                if(bloco === 7 && fase === 3){
+                    x = colunas*50
+                    y = linhas*50
+                    var parede7 = new Sprite(x, y, 50, 50, pontaEsBaixo)
                     paredes.push(parede7);
                 }
 
@@ -763,6 +866,12 @@ function mudarFase(){
                     x = colunas*50
                     y = linhas*50
                     var parede8 = new Sprite(x, y, 50, 50, imagemEgitoD)
+                    paredesD.push(parede8);
+                }
+                if(bloco === 8 && fase === 3){
+                    x = colunas*50
+                    y = linhas*50
+                    var parede8 = new Sprite(x, y, 50, 50, vidro)
                     paredesD.push(parede8);
                 }
             } 
@@ -785,10 +894,15 @@ var yorX;
 var yorX1;
 var yorX2;
 var yorX3;
+var yorX10; 
+var yorX11; 
+var yorX12; 
+var yorX13;
 var pwUR;
 var x;
 var y;
 
+var inimigosFases3 = 0;
 var fogoColidiuD = false;
 var fogoColidiuB = false;
 var fogoColidiuE = false;
@@ -809,7 +923,7 @@ var tempoInimigo = 0;           //Tempo para o inimigo se manter numa direção 
 var fase = 1;                   //Fase inicial
 var mostrarVida = document.getElementById("vida");          //Contator de vida
 var vidas = 3;                  //Quantidade de vidas inciais
-
+var porta;
 
 //DEFININDO IMAGENS.
 
@@ -851,6 +965,32 @@ imagemEgito.src = "imgfase2/Egito.png";
 var imagemEgitoD = new Image();
 imagemEgitoD.src = "imgfase2/EgitoD.png";
 
+//imagens mapa 3
+var torreH = new Image ();
+torreH.src = "imgFase3/torreh.png";
+
+var torreV = new Image ();
+torreV.src = "imgFase3/torrev.png";
+
+var pontaEsCima = new Image ();
+pontaEsCima.src = "imgFase3/pontaesquerdacima.png";
+
+var pontaDiCima = new Image ();
+pontaDiCima.src = "imgFase3/pontadireitacima.png";
+
+var pontaDiBaixo = new Image ();
+pontaDiBaixo.src = "imgFase3/pontadireitabaixo.png";
+
+var pontaEsBaixo = new Image ();
+pontaEsBaixo.src = "imgFase3/pontaesquerdabaixo.png";
+
+var vidro = new Image ();
+vidro.src = "imgFase3/barril.png";
+
+var pedra = new Image ();
+pedra.src = "imgFase3/pedra.png";
+
+
 
 //imagem da Bomba
 
@@ -868,17 +1008,31 @@ pueImagem.src = "img/powerupexplosao.png";
 var imagemPUpB = new Image();
 imagemPUpB.src = "img/imagemPowerUpBomba.png";
 
+var imagemPUMaca = new Image();
+imagemPUMaca.src = "img/pngmaca.png";
+
 //imagem do inimigo fase 1(lobo)
 var imagemInimigo = new Image();
 imagemInimigo.src ="spriteporco/lobinhosheet.png";
+
+//imagem do inimigo fase 3(guerreiro azul)
+var imagemguerreiroA = new Image();
+imagemguerreiroA.src ="spriteporco/guerreirosheet.png";
+
+//imagem do inimigo fase 3(guerreiro vermelho)
+var imagemguerreiroV = new Image();
+imagemguerreiroV.src ="spriteporco/guerreiro2sheet.png";
 
 //imagem da porta, para passar de fase
 var imagemPorta = new Image();
 imagemPorta.src ="https://imgur.com/Ou9w4gH.png";
 
+
+
 //Arrays
 var powerUpExplosao = [];   //qunatidade da explosão após o powerUp
 var powerUpBombas = [];
+var powerUpMacas = [];
 var bombas = [];            //Quantidade de bomba
 var sprites = [];           //para os personagens
 var paredes = [];           //para as paredes fixas
@@ -889,6 +1043,7 @@ var arrayExplosaoE = [];    //explosao para a esquerda
 var arrayExplosaoC =[];     //explosao para cima
 var mapa = [];              //mapas para a quantidade de fase
 var inimigos = [];          //para os inimigos
+var portas = [];
 
 //Declarando objetos.
 var boneco = new Sprite(100,100,30,30,imagemBoneco);
@@ -903,8 +1058,11 @@ var inimigo3 = new Sprite(100,600,30,30,imagemInimigo);
 var inimigo4 = new Sprite(600,600,30,30,imagemInimigo);
 inimigos.push(inimigo,inimigo2,inimigo3,inimigo4);
 
-//variavel da porta, tendo a posição inicial dela
-var porta = new Sprite(400,400,50,50,imagemPorta);
-sprites.push(porta);
+var inimigo9 = new Sprite(200,200,30,30,imagemguerreiroA);
+var inimigo10 = new Sprite(600,100,30,30,imagemguerreiroV);
+var inimigo11 = new Sprite(100,600,30,30,imagemguerreiroA);
+var inimigo12 = new Sprite(600,600,30,30,imagemguerreiroV);
 
-loop(); //Chamando a função loop pela primeira vez para que ela se repita sozinha logo em seguida. 
+//variavel da porta, tendo a posição inicial dela
+
+loop();
